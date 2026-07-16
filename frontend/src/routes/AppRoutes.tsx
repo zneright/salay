@@ -23,11 +23,12 @@ export const AppRoutes: React.FC = () => {
     <>
       <Routes>
         {/* Guest Marketing & Authentication Routes */}
-        <Route path="/" element={<GuestRoute><Landing /></GuestRoute>} />
-        <Route path="/demo" element={<GuestRoute><Demo /></GuestRoute>} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/demo" element={<Demo />} />
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
         <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+
 
         {/* Onboarding Wizard Route */}
         <Route path="/onboarding" element={
