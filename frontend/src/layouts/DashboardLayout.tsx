@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthProvider';
 import { showToast } from '../components/ui/Toast';
@@ -9,14 +9,15 @@ import {
   MessageSquare, 
   FileText, 
   Settings, 
-  Menu, 
   X,
   Building2,
   ChevronDown,
   User,
   LogOut,
   Sliders,
-  ShieldAlert
+  ShieldAlert,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 
@@ -28,11 +29,36 @@ interface NavigationItem {
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('salay_theme');
+    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      setTheme('light');
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (theme === 'dark') {
+      setTheme('light');
+      localStorage.setItem('salay_theme', 'light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      setTheme('dark');
+      localStorage.setItem('salay_theme', 'dark');
+      document.documentElement.classList.add('dark');
+    }
+  };
+
 
 
   const navigation: NavigationItem[] = [
@@ -64,7 +90,7 @@ export const DashboardLayout: React.FC = () => {
     }
   };
 
-  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+
 
   const isPathAllowed = () => {
     const rawPath = location.pathname;
@@ -77,26 +103,24 @@ export const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground">
       {/* Mobile Header */}
-      <header className="flex md:hidden items-center justify-between px-6 py-4 bg-neutral-900 border-b border-neutral-800 relative z-30">
+      <header className="flex md:hidden items-center justify-between px-6 py-4 bg-neutral-950 border-b border-neutral-900 relative z-30">
         <div className="flex items-center space-x-2">
           <Building2 className="w-5 h-5 text-neutral-100" />
-          <span className="font-semibold text-sm tracking-tight">SALAY Engine</span>
+          <span className="font-semibold text-sm tracking-tight text-neutral-200">SALAY</span>
         </div>
         <button
-          onClick={toggleMobileMenu}
-          className="p-1 border border-neutral-850 rounded bg-neutral-950 text-neutral-400 hover:text-neutral-100"
-          aria-label="Toggle menu"
+          onClick={toggleTheme}
+          className="p-1.5 border border-neutral-850 bg-neutral-905 rounded text-neutral-450 hover:text-neutral-100"
+          aria-label="Toggle theme"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
       </header>
 
-      {/* Sidebar Navigation */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-neutral-950 border-r border-neutral-900 flex flex-col justify-between p-6 transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:inset-auto ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+
+      {/* Sidebar Navigation - Hidden on Mobile */}
+      <aside className="hidden md:flex flex-col justify-between w-64 bg-neutral-950 border-r border-neutral-900 p-6 shrink-0 text-left">
+
         <div className="space-y-8">
           {/* Logo Brand */}
           <div className="flex items-center space-x-2.5 px-2">
@@ -114,12 +138,12 @@ export const DashboardLayout: React.FC = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-neutral-900 text-neutral-100 border-l-2 border-neutral-100'
                       : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-900/60'
                   }`}
+
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-neutral-100' : 'text-neutral-400'}`} />
                   <span>{item.name}</span>
@@ -216,18 +240,27 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
 
-          <div className="flex items-center space-x-4">
-            <span className="text-[10px] text-neutral-500 font-mono border border-neutral-850 px-2 py-0.5 rounded bg-neutral-900">
+          <div className="flex items-center space-x-3.5">
+            <span className="text-[10px] text-neutral-500 font-mono border border-neutral-850 px-2 py-0.5 rounded bg-neutral-900/60">
               Press Ctrl + K to Search
             </span>
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 border border-neutral-850 bg-neutral-900 rounded text-neutral-400 hover:text-neutral-200 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
             <div className="text-xs font-semibold bg-emerald-950/20 text-emerald-400 px-2.5 py-1 border border-emerald-900 rounded-md">
               Live (Demo Mocks Active)
             </div>
           </div>
+
         </header>
 
         {/* Dynamic Pages Mount Area */}
-        <section className="flex-1 overflow-y-auto p-6 md:p-8 max-w-7xl w-full mx-auto">
+        <section className="flex-1 overflow-y-auto p-6 md:p-8 pb-20 md:pb-8 max-w-7xl w-full mx-auto">
+
           {isPathAllowed() ? (
             <Outlet />
           ) : (
@@ -254,13 +287,59 @@ export const DashboardLayout: React.FC = () => {
       </main>
 
 
-      {/* Mobile Sidebar Overlay */}
-      {mobileMenuOpen && (
-        <div
-          onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-30 bg-black/60 md:hidden"
-        />
-      )}
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background border-t border-border backdrop-blur-lg flex items-center justify-around h-16 px-2 pb-safe select-none">
+        <Link
+          to="/dashboard"
+          className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-medium transition-all ${
+            location.pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <LayoutDashboard className="w-5 h-5 mb-0.5" />
+          <span>Dashboard</span>
+        </Link>
+
+        <Link
+          to="/dashboard/chat"
+          className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-medium transition-all ${
+            location.pathname.startsWith('/dashboard/chat') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <MessageSquare className="w-5 h-5 mb-0.5" />
+          <span>AI Search</span>
+        </Link>
+
+        {user?.role !== 'Citizen' && (
+          <Link
+            to="/dashboard/analytics"
+            className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-medium transition-all ${
+              location.pathname.startsWith('/dashboard/analytics') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <BarChart3 className="w-5 h-5 mb-0.5" />
+            <span>Analytics</span>
+          </Link>
+        )}
+
+        <Link
+          to="/dashboard/feedback"
+          className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-medium transition-all ${
+            location.pathname.startsWith('/dashboard/feedback') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <FileText className="w-5 h-5 mb-0.5" />
+          <span>Feedback</span>
+        </Link>
+
+        <button
+          onClick={() => setProfileModalOpen(true)}
+          className="flex flex-col items-center justify-center flex-1 h-full text-[10px] font-medium text-muted-foreground hover:text-foreground transition-all"
+        >
+          <User className="w-5 h-5 mb-0.5" />
+          <span>Profile</span>
+        </button>
+      </nav>
+
 
 
 
