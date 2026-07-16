@@ -4,149 +4,139 @@ import { useAuth } from '../providers/AuthProvider';
 import { showToast } from '../components/ui/Toast';
 import { 
   User, 
-  Building, 
+  Building2, 
   ShieldAlert, 
-  Terminal,
-  ArrowLeft,
-  Building2,
-  Check,
-  X as CloseIcon,
-  Sparkles
+  Sliders, 
+  Sparkles, 
+  Check, 
+  X as CloseIcon, 
+  ArrowLeft 
 } from 'lucide-react';
 
-interface DemoPersona {
-  role: 'Citizen' | 'Government Official' | 'Auditor' | 'Administrator';
-  name: string;
-  avatar: string;
-  municipality: string;
-  description: string;
-  canAccess: string[];
-  cannotAccess: string[];
-  datasets: { projects: number; budgets: number; reports: number };
-  questions: string[];
-  icon: React.ComponentType<any>;
-  color: string;
-}
-
 export const Demo: React.FC = () => {
-  const { loginAsDemoRole } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  
-  // Loading Tour state
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [targetRole, setTargetRole] = useState<string | null>(null);
   const [initLogs, setInitLogs] = useState<string[]>([]);
-  const [targetRole, setTargetRole] = useState<string>('');
 
-  const personas: DemoPersona[] = [
+  const personas = [
     {
-      role: 'Citizen',
-      name: 'Juan Dela Cruz',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
+      role: 'Citizen' as const,
+      name: 'Maria Santos',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80',
       municipality: 'Municipality of Salay',
-      description: 'Review local infrastructure projects progress in Wards and submit feedback complaints directly to the council.',
-      canAccess: ['Civic Dashboard', 'AI Cortex Search', 'Feedback submission'],
-      cannotAccess: ['Capital Budget analytics', 'Contractor Audit trail logs', 'Engine Status overrides'],
-      datasets: { projects: 12, budgets: 0, reports: 43 },
-      questions: ['Which roads in Ward 4 are delayed?', 'Show solar conversions budgets'],
       icon: User,
-      color: 'border-neutral-900 hover:border-blue-500/30 text-blue-400 bg-neutral-950/70',
+      color: 'border-border hover:border-primary/30 text-primary bg-card hover:shadow-md transition-all duration-200',
+      description: 'Maria is a citizen of Salay. She queries municipal road status projects, files traffic signal incidents, and tracks local budgets in real-time.',
+      canAccess: ['Project Registries', 'Cortex AI Chatbot', 'Feedback Reports Filing'],
+      cannotAccess: ['Audit Logs Settings', 'Budget Allocation Controls'],
+      questions: ['Which roads are delayed?', 'Show projects completed this year.'],
+      datasets: { projects: 12, budgets: 4, reports: 143 }
     },
     {
-      role: 'Government Official',
-      name: 'Roberto Santos (Mayor)',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80',
-      municipality: 'Mayoralty Council Office',
-      description: 'Oversee municipal spending profiles, examine departmental charts, and inspect public works delay statistics.',
-      canAccess: ['Civic Dashboard', 'AI Cortex Search', 'Capital Budget analytics', 'Citizen Complaints list'],
-      cannotAccess: ['Contractor Audit trail logs', 'Engine Settings configurations'],
-      datasets: { projects: 12, budgets: 4, reports: 143 },
-      questions: ['Which departments exceeded allocations?', 'Review citizen feedback summaries'],
-      icon: Building,
-      color: 'border-neutral-900 hover:border-purple-500/30 text-purple-400 bg-neutral-950/70',
+      role: 'Government Official' as const,
+      name: 'Mayor Jun Capistrano',
+      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80',
+      municipality: 'Mayor’s Office, Salay',
+      icon: Building2,
+      color: 'border-border hover:border-primary/30 text-primary bg-card hover:shadow-md transition-all duration-200',
+      description: 'The Mayor tracks infrastructure spending variance, checks citizen complaint hotspots, and prepares reports before the audit council.',
+      canAccess: ['Spend Outlays Charts', 'Feedback Tickets Queue', 'Verifiable Registries'],
+      cannotAccess: ['Security Configuration', 'System Engine Metrics'],
+      questions: ['Compare budgets spend.', 'Show complaint hotspots.'],
+      datasets: { projects: 12, budgets: 4, reports: 143 }
     },
     {
-      role: 'Auditor',
-      name: 'Maria Santos (Auditor)',
+      role: 'Auditor' as const,
+      name: 'Auditor Clarissa Velez',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&q=80',
-      municipality: 'Auditor General Office',
-      description: 'Conduct strict timeline analyses on contractors, verify budget variances, and audit risk indicator models.',
-      canAccess: ['Civic Dashboard', 'AI Cortex Search', 'Budget Analytics charts', 'Citizen Complaints list', 'Settings Overrides'],
-      cannotAccess: ['Engine config settings edits'],
-      datasets: { projects: 12, budgets: 4, reports: 143 },
-      questions: ['Which projects exceeded budget?', 'Find high-risk contractor anomalies'],
+      municipality: 'Commission on Audit (COA)',
       icon: ShieldAlert,
-      color: 'border-neutral-900 hover:border-amber-500/30 text-amber-400 bg-neutral-950/70',
+      color: 'border-border hover:border-primary/30 text-primary bg-card hover:shadow-md transition-all duration-200',
+      description: 'Clarissa audits contractor risk ratings, verifies municipal timelines delay logs, and reviews Cortex compliance flags.',
+      canAccess: ['Contractor Risk Ratings', 'Timeline Delays Log', 'Cortex Insights Warnings'],
+      cannotAccess: ['Admin settings logs', 'System setups'],
+      questions: ['Find high-risk contractor anomalies.', 'Which projects exceeded budget?'],
+      datasets: { projects: 12, budgets: 4, reports: 143 }
     },
     {
-      role: 'Administrator',
-      name: 'System Overseer',
+      role: 'Administrator' as const,
+      name: 'System Admin Renz',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80',
-      municipality: 'Core Controls Node',
-      description: 'Oversee Cortex model indices parameters, manage setup logs, check engine latency parameters.',
-      canAccess: ['Civic Dashboard', 'AI Cortex Search', 'Budget Analytics charts', 'Citizen Complaints list', 'Settings Overrides', 'Engine Control Panels'],
-      cannotAccess: [],
-      datasets: { projects: 12, budgets: 4, reports: 143 },
-      questions: ['Check Cortex API latency logs', 'Manage system records index'],
-      icon: Terminal,
-      color: 'border-neutral-900 hover:border-emerald-500/30 text-emerald-400 bg-neutral-950/70',
-    },
+      municipality: 'SALAY Core Engineering',
+      icon: Sliders,
+      color: 'border-border hover:border-primary/30 text-primary bg-card hover:shadow-md transition-all duration-200',
+      description: 'Admin Renz oversees the Snowflake Cortex search index mapping setups, checks Snowflake pipeline stages, and tracks execution logs.',
+      canAccess: ['Cortex Index Sync Console', 'Snowflake Stages Pipeline Logs', 'System Latency Panel'],
+      cannotAccess: ['None (Full Access)'],
+      questions: ['Show Cortex vector index latency logs.', 'Test Snowflake connection status.'],
+      datasets: { projects: 12, budgets: 4, reports: 143 }
+    }
   ];
 
-  const handleLaunch = async (persona: DemoPersona) => {
+  const handleLaunch = (persona: typeof personas[0]) => {
     setTargetRole(persona.role);
-    setIsInitializing(true);
     setInitLogs([]);
 
-    const steps = [
-      'Initializing Demo Environment...',
-      '✓ Loading Municipal Projects Registry',
-      '✓ Loading Budgets Outlay Registry',
-      '✓ Staging Ingestion Pipelines',
-      '✓ Configuring Cortex AI Q&A Models',
-      '✓ Structuring Dashboard layout views',
+    const logs = [
+      'Establishing Snowflake secure gateway connection...',
+      '✓ Connection test returned status 200 OK',
+      'Ingesting staged CSV datasets from Snowflake stages...',
+      '✓ Synched 12 projects, 4 budgets, 143 citizen complaints',
+      'Configuring Cortex LLM semantic search index rules...',
+      '✓ Cortex search catalog setup complete',
+      `Activating session profile: ${persona.name} (${persona.role})`,
       'Done'
     ];
 
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, i === 0 ? 250 : 200));
-      setInitLogs((prev) => [...prev, steps[i]]);
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    try {
-      await loginAsDemoRole(persona.role);
-      showToast(`Logged in successfully as ${persona.role}`, 'success');
-      navigate('/dashboard');
-    } catch {
-      showToast('Role launch failed.', 'error');
-      setIsInitializing(false);
-    }
+    logs.forEach((logText, idx) => {
+      setTimeout(() => {
+        setInitLogs((prev) => [...prev, logText]);
+        if (idx === logs.length - 1) {
+          setTimeout(async () => {
+            // Logs in using predefined credentials matching mock roles
+            const email = 
+              persona.role === 'Citizen' ? 'citizen@salay.gov' :
+              persona.role === 'Government Official' ? 'official@salay.gov' :
+              persona.role === 'Auditor' ? 'auditor@salay.gov' :
+              'admin@salay.gov';
+            
+            try {
+              await login(email, 'password123');
+              showToast(`Logged in successfully as ${persona.name}`, 'success');
+              navigate('/dashboard');
+            } catch {
+              showToast('Demo environment initialization failed', 'error');
+            }
+          }, 400);
+        }
+      }, (idx + 1) * 200);
+    });
   };
 
-  if (isInitializing) {
+  if (targetRole) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden px-6">
+      <div className="min-h-screen bg-background relative flex items-center justify-center p-6 md:p-12 overflow-hidden text-left font-semibold">
         {/* Glow grid mesh background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-neutral-900/40 rounded-full blur-3xl opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
 
-        <div className="max-w-md w-full border border-neutral-900 bg-neutral-950/80 backdrop-blur-md rounded-xl p-8 shadow-2xl relative z-10 space-y-6 text-left">
-          <div className="flex items-center space-x-3 text-emerald-400 font-semibold text-sm">
+        <div className="max-w-md w-full border border-border bg-card/85 backdrop-blur-md rounded-2xl p-8 shadow-2xl relative z-10 space-y-6">
+          <div className="flex items-center space-x-3 text-primary font-bold text-sm">
             <Sparkles className="w-5 h-5 animate-spin" />
             <span>SALAY Environment Bootloader</span>
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-sm font-bold text-neutral-200">Setting up {targetRole} environment</h2>
-            <p className="text-[10px] text-neutral-500">Staging Snowflake Cortex queries and layout templates...</p>
+            <h2 className="text-sm font-bold text-foreground">Setting up {targetRole} environment</h2>
+            <p className="text-[10px] text-muted-foreground">Staging Snowflake Cortex queries and layout templates...</p>
           </div>
 
-          <div className="font-mono text-[10px] text-neutral-400 bg-neutral-900/40 p-4 border border-neutral-900 rounded space-y-2 min-h-40">
+          <div className="font-mono text-[10px] text-muted-foreground bg-secondary/40 p-4 border border-border rounded-xl space-y-2 min-h-40">
             {initLogs.map((log, idx) => (
               <div 
                 key={idx} 
-                className={`transition-opacity duration-300 ${log.startsWith('✓') || log === 'Done' ? 'text-emerald-400' : 'text-neutral-400'}`}
+                className={`transition-opacity duration-300 ${log.startsWith('✓') || log === 'Done' ? 'text-emerald-500 font-bold' : 'text-muted-foreground'}`}
               >
                 {log}
               </div>
@@ -158,21 +148,21 @@ export const Demo: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col justify-between p-6 md:p-12">
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col justify-between p-6 md:p-12 text-left font-semibold">
       {/* Background glowing mesh */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35 pointer-events-none" />
 
       {/* Header */}
       <header className="flex justify-between items-center relative z-10">
         <Link 
           to="/" 
-          className="flex items-center space-x-2 text-xs text-neutral-400 hover:text-neutral-100 transition-colors"
+          className="flex items-center space-x-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </Link>
-        <div className="flex items-center space-x-2 text-xs">
-          <Building2 className="w-5 h-5 text-neutral-100" />
+        <div className="flex items-center space-x-2 text-xs text-foreground">
+          <Building2 className="w-5 h-5 text-primary" />
           <span className="font-bold text-sm tracking-tight">SALAY</span>
         </div>
       </header>
@@ -180,8 +170,8 @@ export const Demo: React.FC = () => {
       {/* Main Persona grids */}
       <main className="max-w-6xl mx-auto w-full space-y-8 relative z-10 py-12">
         <div className="text-center space-y-3">
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight">Demo Control Center</h1>
-          <p className="text-xs text-neutral-400 max-w-md mx-auto">
+          <h1 className="text-[40px] font-bold tracking-tight text-foreground leading-none">Demo Control Center</h1>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
             Choose a stakeholder persona to launch. Each role presents a contextual view of SALAY.
           </p>
         </div>
@@ -192,7 +182,7 @@ export const Demo: React.FC = () => {
             return (
               <div
                 key={persona.role}
-                className={`border rounded-xl p-5 shadow-2xl flex flex-col justify-between space-y-5 transition-all duration-300 hover:scale-[1.02] ${persona.color}`}
+                className={`border rounded-2xl p-5 shadow-2xl flex flex-col justify-between space-y-5 transition-all duration-300 hover:scale-[1.02] ${persona.color}`}
               >
                 {/* Header User details */}
                 <div className="space-y-4">
@@ -201,43 +191,42 @@ export const Demo: React.FC = () => {
                       <img 
                         src={persona.avatar} 
                         alt={persona.name} 
-                        className="w-10 h-10 rounded-full border border-neutral-900 shrink-0"
+                        className="w-10 h-10 rounded-full border border-border shrink-0"
                       />
                       <div className="text-left leading-tight">
-                        <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider">{persona.role}</h3>
-                        <h4 className="text-xs font-bold text-neutral-100 truncate max-w-[130px]">{persona.name}</h4>
+                        <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{persona.role}</h3>
+                        <h4 className="text-xs font-bold text-foreground truncate max-w-[130px]">{persona.name}</h4>
                       </div>
                     </div>
-                    <div className="p-1.5 border border-neutral-900 bg-neutral-900/60 rounded-md text-neutral-400 shrink-0">
+                    <div className="p-1.5 border border-border bg-secondary rounded-xl text-primary shrink-0">
                       <Icon className="w-3.5 h-3.5" />
                     </div>
                   </div>
 
-
                   <div className="space-y-1 text-left">
-                    <span className="text-[9px] uppercase font-bold text-neutral-500 block">Municipality</span>
-                    <span className="text-[10px] text-neutral-350">{persona.municipality}</span>
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground block">Municipality</span>
+                    <span className="text-[10px] text-foreground">{persona.municipality}</span>
                   </div>
 
-                  <p className="text-[10px] text-neutral-400 leading-relaxed text-left">
+                  <p className="text-[10px] text-muted-foreground leading-relaxed text-left font-medium">
                     {persona.description}
                   </p>
                 </div>
 
                 {/* Modules checklists */}
-                <div className="space-y-3.5 border-t border-neutral-900 pt-4 text-left">
+                <div className="space-y-3.5 border-t border-border pt-4 text-left">
                   <div className="space-y-1">
-                    <span className="text-[9px] uppercase font-bold text-neutral-500 block mb-1">Access Checklist</span>
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">Access Checklist</span>
                     <div className="space-y-1.5">
                       {persona.canAccess.map((m, idx) => (
-                        <div key={idx} className="flex items-center space-x-1.5 text-[10px] text-neutral-350">
+                        <div key={idx} className="flex items-center space-x-1.5 text-[10px] text-foreground">
                           <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                           <span className="truncate">{m}</span>
                         </div>
                       ))}
                       {persona.cannotAccess.map((m, idx) => (
-                        <div key={idx} className="flex items-center space-x-1.5 text-[10px] text-neutral-600">
-                          <CloseIcon className="w-3.5 h-3.5 text-neutral-700 shrink-0" />
+                        <div key={idx} className="flex items-center space-x-1.5 text-[10px] text-muted-foreground/60">
+                          <CloseIcon className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                           <span className="truncate">{m}</span>
                         </div>
                       ))}
@@ -245,28 +234,28 @@ export const Demo: React.FC = () => {
                   </div>
 
                   {/* Datasets counters mock */}
-                  <div className="space-y-1 border-t border-neutral-900/60 pt-3">
-                    <span className="text-[9px] uppercase font-bold text-neutral-500 block mb-1">Available Datasets</span>
-                    <div className="grid grid-cols-3 gap-1 text-center font-mono text-[9px] text-neutral-450 bg-neutral-900/40 p-2 rounded">
+                  <div className="space-y-1 border-t border-border pt-3">
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">Available Datasets</span>
+                    <div className="grid grid-cols-3 gap-1 text-center font-mono text-[9px] text-muted-foreground bg-secondary/40 p-2 rounded-lg border border-border/60">
                       <div className="flex flex-col">
-                        <span className="font-bold text-neutral-300">{persona.datasets.projects}</span>
+                        <span className="font-bold text-foreground">{persona.datasets.projects}</span>
                         <span className="text-[7px]">PRJS</span>
                       </div>
-                      <div className="flex flex-col border-x border-neutral-900">
-                        <span className="font-bold text-neutral-300">{persona.datasets.budgets}</span>
+                      <div className="flex flex-col border-x border-border">
+                        <span className="font-bold text-foreground">{persona.datasets.budgets}</span>
                         <span className="text-[7px]">BDGTS</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-neutral-300">{persona.datasets.reports}</span>
+                        <span className="font-bold text-foreground">{persona.datasets.reports}</span>
                         <span className="text-[7px]">RPRTS</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Suggested questions */}
-                  <div className="space-y-1.5 border-t border-neutral-900/60 pt-3">
-                    <span className="text-[9px] uppercase font-bold text-neutral-500 block">Suggested Queries</span>
-                    <div className="space-y-1 font-mono text-[9px] text-neutral-400">
+                  <div className="space-y-1.5 border-t border-border pt-3">
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground block">Suggested Queries</span>
+                    <div className="space-y-1 font-mono text-[9px] text-muted-foreground">
                       {persona.questions.map((q, idx) => (
                         <div key={idx} className="truncate">
                           • "{q}"
@@ -279,7 +268,7 @@ export const Demo: React.FC = () => {
                 {/* Launch Demo button */}
                 <button
                   onClick={() => handleLaunch(persona)}
-                  className="w-full py-2 bg-neutral-100 hover:bg-neutral-250 text-neutral-900 font-bold text-xs rounded transition-all active:scale-[0.98] flex items-center justify-center space-x-1"
+                  className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs rounded-lg transition-all active:scale-[0.98] flex items-center justify-center space-x-1"
                 >
                   <span>Launch Demo Portal</span>
                 </button>
@@ -289,9 +278,8 @@ export const Demo: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer info */}
-      <footer className="text-center text-[10px] text-neutral-500 relative z-10 pt-6">
-        Designed for judges audit reviews. Mapped using mock local caches matching Snowflake target structures.
+      <footer className="relative z-10 text-center text-[10px] text-muted-foreground pt-12">
+        <span>Powered by Snowflake Cortex AI & Snowpark. Built for Civic Transparency.</span>
       </footer>
     </div>
   );

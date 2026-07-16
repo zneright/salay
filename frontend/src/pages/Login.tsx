@@ -45,20 +45,20 @@ export const Login: React.FC = () => {
 
   return (
     <AuthLayout>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left font-semibold">
         <div>
-          <h1 className="text-sm font-bold text-neutral-200">Welcome Back</h1>
-          <p className="text-[10px] text-neutral-500 mt-0.5">Please sign in to access public projects ledgers.</p>
+          <h1 className="text-sm font-bold text-foreground">Welcome Back</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Please sign in to access public projects ledgers.</p>
         </div>
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Email Address</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Email Address</label>
           <input
             type="text"
             {...register('email')}
             placeholder="name@organization.org"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {errors.email && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -70,8 +70,8 @@ export const Login: React.FC = () => {
         {/* Password */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Password</label>
-            <Link to="/forgot-password" className="text-[9px] text-neutral-500 hover:text-neutral-300">
+            <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Password</label>
+            <Link to="/forgot-password" className="text-[9px] text-muted-foreground hover:text-foreground">
               Forgot Password?
             </Link>
           </div>
@@ -79,7 +79,7 @@ export const Login: React.FC = () => {
             type="password"
             {...register('password')}
             placeholder="••••••••"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {errors.password && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -94,9 +94,9 @@ export const Login: React.FC = () => {
             type="checkbox"
             id="remember_me"
             {...register('remember_me')}
-            className="rounded border-neutral-800 bg-neutral-900 text-neutral-100 w-3.5 h-3.5 focus:ring-0 outline-none"
+            className="rounded border-border bg-secondary text-primary w-3.5 h-3.5 focus:ring-0 outline-none"
           />
-          <label htmlFor="remember_me" className="text-[10px] text-neutral-400 select-none">
+          <label htmlFor="remember_me" className="text-[10px] text-muted-foreground select-none cursor-pointer">
             Remember my session
           </label>
         </div>
@@ -104,16 +104,16 @@ export const Login: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 text-neutral-900 font-semibold text-xs rounded transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98]"
+          className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98]"
         >
           {isSubmitting ? 'Verifying...' : 'Sign In'}
           {!isSubmitting && <ArrowRight className="w-3.5 h-3.5" />}
         </button>
 
         {/* Footer actions */}
-        <div className="text-center pt-2 border-t border-neutral-900 text-[10px] text-neutral-500">
+        <div className="text-center pt-2 border-t border-border text-[10px] text-muted-foreground">
           <span>Don't have an account? </span>
-          <Link to="/register" className="text-neutral-300 hover:underline">
+          <Link to="/register" className="text-primary hover:underline">
             Register here
           </Link>
         </div>

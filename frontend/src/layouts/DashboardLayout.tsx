@@ -110,7 +110,7 @@ export const DashboardLayout: React.FC = () => {
         </div>
         <button
           onClick={toggleTheme}
-          className="p-1.5 border border-neutral-850 bg-neutral-905 rounded text-neutral-450 hover:text-neutral-100"
+          className="p-1.5 border border-border bg-secondary rounded text-muted-foreground hover:text-foreground"
           aria-label="Toggle theme"
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -119,13 +119,13 @@ export const DashboardLayout: React.FC = () => {
 
 
       {/* Sidebar Navigation - Hidden on Mobile */}
-      <aside className="hidden md:flex flex-col justify-between w-64 bg-neutral-950 border-r border-neutral-900 p-6 shrink-0 text-left">
+      <aside className="hidden md:flex flex-col justify-between w-64 bg-card border-r border-border p-6 shrink-0 text-left">
 
         <div className="space-y-8">
           {/* Logo Brand */}
           <div className="flex items-center space-x-2.5 px-2">
-            <Building2 className="w-6 h-6 text-neutral-100" />
-            <span className="font-bold text-base tracking-tight">SALAY Engine</span>
+            <Building2 className="w-6 h-6 text-foreground" />
+            <span className="font-bold text-base tracking-tight text-foreground font-sans">SALAY Engine</span>
           </div>
 
           {/* Navigation Links */}
@@ -140,12 +140,12 @@ export const DashboardLayout: React.FC = () => {
                   to={item.href}
                   className={`flex items-center space-x-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-neutral-900 text-neutral-100 border-l-2 border-neutral-100'
-                      : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-900/60'
+                      ? 'bg-secondary text-foreground border-l-2 border-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
                   }`}
 
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-neutral-100' : 'text-neutral-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span>{item.name}</span>
                 </Link>
               );
@@ -154,55 +154,58 @@ export const DashboardLayout: React.FC = () => {
         </div>
 
         {/* User profile footer element with Dropdown trigger */}
-        <div className="relative pt-4 border-t border-neutral-900">
+        <div className="relative pt-4 border-t border-border">
           <button 
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-            className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-neutral-900/40 transition-colors"
+            className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-secondary/40 transition-colors"
           >
             <div className="flex items-center space-x-3 text-left">
               <img 
                 src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} 
                 alt="Profile Avatar"
-                className="w-8 h-8 rounded-full border border-neutral-800"
+                className="w-8 h-8 rounded-full border border-border"
               />
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-neutral-200 truncate max-w-[120px]">
+                <span className="text-xs font-semibold text-foreground truncate max-w-[120px]">
                   {user?.fullName || 'Guest Observer'}
                 </span>
-                <span className="text-[10px] text-neutral-500 font-mono tracking-wide">{user?.role}</span>
+                <span className="text-[10px] text-muted-foreground font-mono tracking-wide">{user?.role}</span>
               </div>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-500" />
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
 
           {/* Profile Dropdown menu */}
           {profileMenuOpen && (
             <>
-              <div className="absolute bottom-16 right-0 left-0 bg-neutral-950 border border-neutral-900 rounded-lg p-2 shadow-2xl space-y-1 z-50">
+              <div className="absolute bottom-16 right-0 left-0 bg-card border border-border rounded-lg p-2 shadow-2xl space-y-1 z-50">
                 <button
                   onClick={() => {
                     setProfileModalOpen(true);
                     setProfileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
+                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary"
                 >
 
-                  <User className="w-3.5 h-3.5 text-neutral-500" />
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
                   <span>Profile Overview</span>
                 </button>
                 <button
                   onClick={() => {
-                    navigate('/dashboard/settings');
+                    showToast('Connection parameters operational', 'info');
                     setProfileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
+                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary"
                 >
-                  <Sliders className="w-3.5 h-3.5 text-neutral-500" />
+                  <Sliders className="w-3.5 h-3.5 text-muted-foreground" />
                   <span>Account Settings</span>
                 </button>
                 <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-rose-400 hover:text-rose-300 hover:bg-neutral-900 border-t border-neutral-900 mt-1"
+                  onClick={() => {
+                    setProfileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded text-[11px] text-rose-500 hover:text-rose-600 hover:bg-secondary border-t border-border mt-1"
                 >
                   <LogOut className="w-3.5 h-3.5 text-rose-500" />
                   <span>Sign Out</span>
@@ -221,13 +224,13 @@ export const DashboardLayout: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Desktop Navbar Header */}
-        <header className="hidden md:flex items-center justify-between px-8 py-5 border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md">
+        <header className="hidden md:flex items-center justify-between px-8 py-5 border-b border-border bg-card/40 backdrop-blur-md">
           <div className="flex flex-col text-left">
-            <span className="text-[10px] text-neutral-500 font-mono tracking-wide uppercase">
+            <span className="text-[10px] text-muted-foreground font-mono tracking-wide uppercase">
               {user?.role} Portal • {user?.organization}
             </span>
-            <h2 className="text-sm font-semibold tracking-tight text-neutral-200 mt-1">
-              Good Morning, {user?.fullName} • <span className="text-neutral-400 font-normal">Tuesday, 8:24 AM</span>
+            <h2 className="text-sm font-semibold tracking-tight text-foreground mt-1">
+              Good Morning, {user?.fullName} • <span className="text-muted-foreground font-normal">Tuesday, 8:24 AM</span>
             </h2>
             <p className="text-[10px] text-emerald-500 mt-0.5 font-medium">
               Recommended Action: {
@@ -241,7 +244,7 @@ export const DashboardLayout: React.FC = () => {
 
 
           <div className="flex items-center space-x-3.5">
-            <span className="text-[10px] text-neutral-500 font-mono border border-neutral-850 px-2 py-0.5 rounded bg-neutral-900/60">
+            <span className="text-[10px] text-muted-foreground font-mono border border-border px-2 py-0.5 rounded bg-secondary/60">
               Press Ctrl + K to Search
             </span>
             <button

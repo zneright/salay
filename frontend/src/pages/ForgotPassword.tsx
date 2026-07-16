@@ -36,21 +36,21 @@ export const ForgotPassword: React.FC = () => {
 
   return (
     <AuthLayout>
-      <div className="space-y-4 text-left">
+      <div className="space-y-4 text-left font-semibold">
         <div>
-          <h1 className="text-sm font-bold text-neutral-200">Reset Password</h1>
-          <p className="text-[10px] text-neutral-500 mt-0.5">Enter your email to receive a recovery link.</p>
+          <h1 className="text-sm font-bold text-foreground">Reset Password</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Enter your email to receive a recovery link.</p>
         </div>
 
         {success ? (
           <div className="space-y-4">
-            <div className="flex items-center space-x-2.5 p-3.5 bg-emerald-950/20 border border-emerald-900 text-emerald-400 rounded-lg text-xs">
+            <div className="flex items-center space-x-2.5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-lg text-xs">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>We've dispatched a recovery link. Please check your inbox.</span>
             </div>
             <button
               onClick={() => navigate('/login')}
-              className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold text-xs rounded transition-all active:scale-[0.98]"
+              className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs rounded-lg transition-all active:scale-[0.98]"
             >
               Return to Login
             </button>
@@ -59,12 +59,12 @@ export const ForgotPassword: React.FC = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Email Address</label>
+              <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Email Address</label>
               <input
                 type="text"
                 {...register('email')}
                 placeholder="john@example.com"
-                className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+                className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
               />
               {errors.email && (
                 <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -76,13 +76,13 @@ export const ForgotPassword: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 text-neutral-900 font-semibold text-xs rounded transition-all active:scale-[0.98]"
+              className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs rounded-lg transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {isSubmitting ? 'Sending...' : 'Send Recovery Link'}
             </button>
 
-            <div className="text-center pt-2 border-t border-neutral-900">
-              <Link to="/login" className="inline-flex items-center space-x-1.5 text-[10px] text-neutral-400 hover:text-neutral-200">
+            <div className="text-center pt-2 border-t border-border">
+              <Link to="/login" className="inline-flex items-center space-x-1.5 text-[10px] text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Login</span>
               </Link>

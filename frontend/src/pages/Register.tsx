@@ -60,6 +60,12 @@ export const Register: React.FC = () => {
     }
   }, [pwdValue]);
 
+  const strengthColors = {
+    Weak: 'bg-rose-500 w-1/3',
+    Medium: 'bg-amber-500 w-2/3',
+    Strong: 'bg-emerald-500 w-full',
+  };
+
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       await registerUser(data.fullName, data.email);
@@ -70,28 +76,22 @@ export const Register: React.FC = () => {
     }
   };
 
-  const strengthColors = {
-    Weak: 'bg-rose-500 w-1/3',
-    Medium: 'bg-amber-500 w-2/3',
-    Strong: 'bg-emerald-500 w-full',
-  };
-
   return (
     <AuthLayout>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left font-semibold">
         <div>
-          <h1 className="text-sm font-bold text-neutral-200">Create Account</h1>
-          <p className="text-[10px] text-neutral-500 mt-0.5">Register for the civic audit terminal.</p>
+          <h1 className="text-sm font-bold text-foreground">Create Account</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Register for the civic audit terminal.</p>
         </div>
 
         {/* Full name */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Full Name</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Full Name</label>
           <input
             type="text"
             {...register('fullName')}
             placeholder="John Doe"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {errors.fullName && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -102,12 +102,12 @@ export const Register: React.FC = () => {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Email Address</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Email Address</label>
           <input
             type="text"
             {...register('email')}
             placeholder="john@example.com"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {errors.email && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -118,20 +118,20 @@ export const Register: React.FC = () => {
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Password</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Password</label>
           <input
             type="password"
             {...register('password')}
             placeholder="••••••••"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {pwdValue && (
             <div className="space-y-1">
-              <div className="flex justify-between text-[9px] text-neutral-500">
+              <div className="flex justify-between text-[9px] text-muted-foreground">
                 <span>Strength</span>
                 <span>{pwdStrength}</span>
               </div>
-              <div className="w-full bg-neutral-900 h-1 rounded-full overflow-hidden border border-neutral-855">
+              <div className="w-full bg-secondary h-1 rounded-full overflow-hidden border border-border">
                 <div className={`h-full transition-all duration-300 ${strengthColors[pwdStrength]}`} />
               </div>
             </div>
@@ -145,12 +145,12 @@ export const Register: React.FC = () => {
 
         {/* Confirm password */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Confirm Password</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Confirm Password</label>
           <input
             type="password"
             {...register('confirmPassword')}
             placeholder="••••••••"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           {errors.confirmPassword && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -166,9 +166,9 @@ export const Register: React.FC = () => {
               type="checkbox"
               id="terms"
               {...register('terms')}
-              className="rounded border-neutral-800 bg-neutral-900 text-neutral-100 w-3.5 h-3.5 focus:ring-0 outline-none"
+              className="rounded border-border bg-secondary text-primary w-3.5 h-3.5 focus:ring-0 outline-none"
             />
-            <label htmlFor="terms" className="text-[10px] text-neutral-400 select-none">
+            <label htmlFor="terms" className="text-[10px] text-muted-foreground select-none cursor-pointer">
               I accept the Civic audit terms of use.
             </label>
           </div>
@@ -182,16 +182,16 @@ export const Register: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 text-neutral-900 font-semibold text-xs rounded transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98]"
+          className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98] disabled:opacity-50"
         >
           {isSubmitting ? 'Registering...' : 'Create Account'}
           {!isSubmitting && <ArrowRight className="w-3.5 h-3.5" />}
         </button>
 
         {/* Footer actions */}
-        <div className="text-center pt-2 border-t border-neutral-900 text-[10px] text-neutral-500">
+        <div className="text-center pt-2 border-t border-border text-[10px] text-muted-foreground">
           <span>Already have an account? </span>
-          <Link to="/login" className="text-neutral-300 hover:underline">
+          <Link to="/login" className="text-primary hover:underline">
             Login
           </Link>
         </div>

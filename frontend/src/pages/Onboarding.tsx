@@ -45,9 +45,9 @@ export const Onboarding: React.FC = () => {
 
   return (
     <AuthLayout>
-      <div className="space-y-6 text-left">
+      <div className="space-y-6 text-left font-semibold">
         {/* Step indicators */}
-        <div className="flex justify-between items-center text-[10px] text-neutral-500 font-mono">
+        <div className="flex justify-between items-center text-[10px] text-muted-foreground font-mono">
           <span>Step {step} of 2</span>
           <span>{step === 1 ? 'Select Role Profile' : 'Configure Organization'}</span>
         </div>
@@ -56,8 +56,8 @@ export const Onboarding: React.FC = () => {
         {step === 1 ? (
           <div className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-sm font-bold text-neutral-200">How will you use SALAY?</h2>
-              <p className="text-[10px] text-neutral-500">Select a stakeholder profile below to customize your dashboard views.</p>
+              <h2 className="text-sm font-bold text-foreground">How will you use SALAY?</h2>
+              <p className="text-[10px] text-muted-foreground">Select a stakeholder profile below to customize your dashboard views.</p>
             </div>
 
             <div className="space-y-2.5">
@@ -69,16 +69,16 @@ export const Onboarding: React.FC = () => {
                     key={item.value}
                     type="button"
                     onClick={() => setRole(item.value)}
-                    className={`w-full text-left p-3.5 border rounded-lg transition-all flex items-start space-x-3.5 ${
+                    className={`w-full text-left p-3.5 border rounded-xl transition-all flex items-start space-x-3.5 ${
                       isSelected 
-                        ? 'border-neutral-100 bg-neutral-900 text-neutral-100' 
-                        : 'border-neutral-900 hover:border-neutral-850 text-neutral-400 hover:text-neutral-300'
+                        ? 'border-primary bg-secondary text-primary' 
+                        : 'border-border bg-card/65 text-muted-foreground hover:text-foreground hover:border-primary/20'
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold block">{item.label}</span>
-                      <span className="text-[10px] text-neutral-500 leading-normal">{item.desc}</span>
+                      <span className="text-[10px] text-muted-foreground leading-normal">{item.desc}</span>
                     </div>
                   </button>
                 );
@@ -89,26 +89,26 @@ export const Onboarding: React.FC = () => {
           /* Step 2: Configure Municipality */
           <div className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-sm font-bold text-neutral-200">Municipal Scope Setup</h2>
-              <p className="text-[10px] text-neutral-500">Associate your account with a target municipality region.</p>
+              <h2 className="text-sm font-bold text-foreground">Municipal Scope Setup</h2>
+              <p className="text-[10px] text-muted-foreground">Associate your account with a target municipality region.</p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-400">Municipality / Organization</label>
+                <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Municipality / Organization</label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-neutral-500 absolute left-3 top-2.5" />
+                  <MapPin className="w-4 h-4 text-muted-foreground absolute left-3 top-2.5" />
                   <input
                     type="text"
                     value={municipality}
                     onChange={(e) => setMunicipality(e.target.value)}
                     placeholder="e.g. Metro City Civic Council"
-                    className="w-full bg-neutral-900 border border-neutral-850 rounded pl-10 pr-4 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+                    className="w-full bg-secondary border border-border rounded-lg pl-10 pr-4 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
                   />
                 </div>
               </div>
 
-              <div className="p-3.5 border border-neutral-900 bg-neutral-900/20 rounded-lg flex items-start space-x-2.5 text-[10px] text-neutral-500 leading-normal">
+              <div className="p-3.5 border border-border bg-secondary/40 rounded-xl flex items-start space-x-2.5 text-[10px] text-muted-foreground leading-normal">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <p>This links your workspace filters to that specific geographic boundary records by default. You can adjust this later inside settings.</p>
               </div>
@@ -117,11 +117,11 @@ export const Onboarding: React.FC = () => {
         )}
 
         {/* Wizard Controls */}
-        <div className="flex justify-between items-center pt-4 border-t border-neutral-900">
+        <div className="flex justify-between items-center pt-4 border-t border-border">
           {step === 2 && (
             <button
               onClick={() => setStep(1)}
-              className="text-[10px] text-neutral-500 hover:text-neutral-300 font-semibold px-3 py-1.5"
+              className="text-[10px] text-muted-foreground hover:text-foreground font-semibold px-3 py-1.5"
             >
               Back
             </button>
@@ -129,7 +129,7 @@ export const Onboarding: React.FC = () => {
           <div className="flex-1" />
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold text-xs rounded transition-all flex items-center space-x-1.5 active:scale-95 shadow-md"
+            className="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs rounded-lg transition-all flex items-center space-x-1.5 active:scale-95 shadow-md"
           >
             <span>{step === 1 ? 'Continue' : 'Finish Setup'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
