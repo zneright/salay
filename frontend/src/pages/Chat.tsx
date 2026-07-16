@@ -88,22 +88,23 @@ export const Chat: React.FC = () => {
   };
 
   return (
-    <div className="h-[78vh] flex flex-col justify-between border border-neutral-900 bg-neutral-950/20 rounded-xl overflow-hidden relative text-left">
+    <div className="h-[78vh] flex flex-col justify-between border border-border bg-card/25 rounded-xl overflow-hidden relative text-left">
       {/* Background logo marker */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
 
       {/* Chat header panel */}
-      <div className="px-6 py-4 border-b border-neutral-900 bg-neutral-950 flex items-center justify-between z-10 shrink-0">
+      <div className="px-6 py-4 border-b border-border bg-card/85 flex items-center justify-between z-10 shrink-0">
         <div className="flex items-center space-x-2.5">
-          <Cpu className="w-5 h-5 text-emerald-400" />
+          <Cpu className="w-5 h-5 text-primary" />
           <div>
-            <h3 className="text-xs font-bold text-neutral-200">Cortex Transparency Q&A</h3>
-            <p className="text-[10px] text-neutral-500">Ask natural language queries on municipal records.</p>
+            <h3 className="text-xs font-bold text-foreground">Cortex Transparency Q&A</h3>
+            <p className="text-[10px] text-muted-foreground">Ask natural language queries on municipal records.</p>
           </div>
         </div>
-        <div className="flex items-center space-x-2 text-[10px] text-neutral-500 font-mono">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+        <div className="flex items-center space-x-2 text-[10px] text-muted-foreground font-mono">
+          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
           <span>Snowflake Cortex Enabled</span>
+
         </div>
       </div>
 
@@ -111,13 +112,14 @@ export const Chat: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-6 space-y-6 z-10">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center space-y-6 text-center max-w-lg mx-auto">
-            <div className="p-4 bg-neutral-900/60 border border-neutral-850 rounded-2xl text-neutral-300">
-              <MessageSquare className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-              <h4 className="text-xs font-bold text-neutral-200">SALAY AI Search Portal</h4>
-              <p className="text-[10px] text-neutral-500 leading-relaxed mt-1">
+            <div className="p-4.5 bg-card border border-border rounded-xl text-foreground shadow-sm">
+              <MessageSquare className="w-8 h-8 text-muted-foreground/60 mx-auto mb-2" />
+              <h4 className="text-xs font-bold text-foreground">SALAY AI Search Portal</h4>
+              <p className="text-[10px] text-muted-foreground leading-relaxed mt-1">
                 This engine uses **Snowflake Cortex LLM** to translate citizen questions directly into queries and compile summaries of municipal budgets, project progress, and complaints.
               </p>
             </div>
+
 
             {/* Clickable suggested questions */}
             <div className="space-y-2 w-full text-left">
@@ -127,11 +129,12 @@ export const Chat: React.FC = () => {
                   <button
                     key={idx}
                     onClick={() => handleSend(q)}
-                    className="p-3 border border-neutral-900 bg-neutral-950/80 hover:border-neutral-800 rounded-lg text-left text-xs text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-between group active:scale-[0.99]"
+                    className="p-3 border border-border bg-card hover:bg-secondary rounded-xl text-left text-xs text-muted-foreground hover:text-foreground transition-all duration-200 flex items-center justify-between group active:scale-[0.99]"
                   >
                     <span>{q}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400 shrink-0 ml-2" />
+                    <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground shrink-0 ml-2 transition-colors" />
                   </button>
+
                 ))}
               </div>
             </div>
@@ -143,30 +146,44 @@ export const Chat: React.FC = () => {
               return (
                 <div key={m.id} className={`flex items-start gap-3 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse text-right' : 'mr-auto'}`}>
                   {/* Avatar bubble */}
-                  <div className={`p-2 rounded-full border border-neutral-900 shrink-0 ${isUser ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-900 text-emerald-400'}`}>
+                  <div className={`p-2 rounded-full border border-border shrink-0 ${isUser ? 'bg-secondary text-foreground' : 'bg-secondary text-primary'}`}>
+
                     {isUser ? <User className="w-3.5 h-3.5" /> : <Cpu className="w-3.5 h-3.5" />}
                   </div>
 
                   {/* Bubble text */}
                   <div className="space-y-1">
-                    <div className={`p-3 rounded-lg text-xs leading-relaxed text-left whitespace-pre-line border ${
+                    <div className={`p-4.5 rounded-xl text-xs leading-relaxed text-left whitespace-pre-line border ${
                       isUser 
-                        ? 'bg-neutral-900 border-neutral-800 text-neutral-200' 
-                        : 'bg-neutral-950 border-neutral-900 text-neutral-100'
+                        ? 'bg-secondary border-border text-foreground' 
+                        : 'bg-card border-primary/20 text-foreground shadow-sm'
                     }`}>
+                      {!isUser && (
+                        <div className="flex items-center justify-between mb-2.5 pb-1.5 border-b border-border/40 text-[9px] text-muted-foreground font-mono select-none">
+                          <span className="flex items-center space-x-1 font-bold text-primary">
+                            <span>✨</span> <span>AI Summary</span>
+                          </span>
+                          <span className="flex items-center space-x-2">
+                            <span>🤖 Cortex Response</span>
+                            <span>•</span>
+                            <span className="text-emerald-500 font-bold">96% Confidence</span>
+                          </span>
+                        </div>
+                      )}
                       {m.text}
                     </div>
                     {/* Source badges */}
-                    <div className="flex items-center space-x-2 text-[9px] text-neutral-500 font-mono">
+                    <div className="flex items-center space-x-2 text-[9px] text-muted-foreground font-mono">
                       <span>{m.timestamp}</span>
                       {m.sourceBadge && (
                         <>
                           <span>•</span>
-                          <span className="text-emerald-500 font-semibold">{m.sourceBadge}</span>
+                          <span className="text-primary font-semibold">{m.sourceBadge}</span>
                         </>
                       )}
                     </div>
                   </div>
+
                 </div>
               );
             })}
@@ -188,7 +205,7 @@ export const Chat: React.FC = () => {
       </div>
 
       {/* Input box form */}
-      <div className="p-4 border-t border-neutral-900 bg-neutral-950 z-10 shrink-0">
+      <div className="p-4 border-t border-border bg-card z-10 shrink-0">
         <form 
           onSubmit={(e) => {
             e.preventDefault();
@@ -201,11 +218,11 @@ export const Chat: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a transparency question (e.g. Which road projects are delayed?)..."
-            className="w-full bg-neutral-900 border border-neutral-850 rounded px-4 py-2.5 text-xs text-neutral-250 outline-none focus:border-neutral-700 placeholder-neutral-600"
+            className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
           />
           <button
             type="submit"
-            className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 rounded font-bold transition-all active:scale-95 shrink-0"
+            className="p-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-bold transition-all active:scale-95 shrink-0"
             aria-label="Send message"
           >
             <Send className="w-4 h-4" />
