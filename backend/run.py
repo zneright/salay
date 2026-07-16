@@ -6,5 +6,5 @@ if __name__ == "__main__":
         "app.main:app",
         host="127.0.0.1",
         port=settings.API_PORT,
-        reload=settings.API_ENV == "development"
+        reload=settings.API_ENV == "development",
     )

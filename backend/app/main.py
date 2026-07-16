@@ -10,15 +10,16 @@ from app.api.v1.budgets import router as budgets_router
 from app.api.v1.feedback import router as feedback_router
 from app.api.v1.ai import router as ai_router
 
+
 def create_app() -> FastAPI:
     # Setup root logging formatters
     setup_logging()
-    
+
     app = FastAPI(
         title="Civic Transparency API",
         description="REST backend endpoints powered by Snowflake",
         version="0.1.0",
-        debug=settings.API_DEBUG
+        debug=settings.API_DEBUG,
     )
 
     # CORS Configurations
@@ -29,7 +30,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Global exception handler middleware
     app.add_middleware(GlobalExceptionMiddleware)
 
@@ -43,5 +44,6 @@ def create_app() -> FastAPI:
     app.include_router(ai_router, prefix=api_prefix, tags=["Cortex AI"])
 
     return app
+
 
 app = create_app()

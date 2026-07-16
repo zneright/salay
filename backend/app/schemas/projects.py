@@ -1,11 +1,14 @@
 from pydantic import BaseModel, Field
 
+
 class ProjectResponse(BaseModel):
     id: str = Field(..., description="Unique alphanumeric project identifier")
     title: str = Field(..., description="Name of the public works project")
     department: str = Field(..., description="Department handling the project")
     budget: float = Field(..., description="Total allocated project funding")
-    status: str = Field(..., description="Progress status (Planned, In Progress, Completed, Delayed)")
+    status: str = Field(
+        ..., description="Progress status (Planned, In Progress, Completed, Delayed)"
+    )
     location: str = Field(..., description="Geographical or ward zone")
     timeline: str = Field(..., description="Project timeline window")
     progress: int = Field(..., ge=0, le=100, description="Completeness percentage")
@@ -20,7 +23,7 @@ class ProjectResponse(BaseModel):
                 "status": "In Progress",
                 "location": "Ward 4 (North Metro)",
                 "timeline": "Mar 2025 - Nov 2026",
-                "progress": 68
+                "progress": 68,
             }
         }
     }

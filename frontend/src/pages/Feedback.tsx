@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { AlertCircle, CheckCircle2, MapPin, Tag } from 'lucide-react';
+import { AlertCircle, CheckCircle2, MapPin, Tag, FileText } from 'lucide-react';
 
 interface CitizenFeedback {
   id: string;
@@ -11,16 +11,21 @@ interface CitizenFeedback {
   description: string;
   submittedAt: string;
   status: 'Open' | 'Under Investigation' | 'Resolved';
+  isAnonymous?: boolean;
+  contactEmail?: string;
 }
 
 const feedbackSchema = z.object({
   report_type: z.string().min(2, 'Please select or enter a valid report type.'),
   address: z.string().min(5, 'Address must contain at least 5 characters.'),
   description: z.string().min(10, 'Details must contain at least 10 characters.'),
-  citizen_contact: z.string().email('Please enter a valid email address.'),
+  citizen_contact: z.string().optional().or(z.literal('')),
+  submit_anonymously: z.boolean(),
 });
 
+
 type FeedbackFormValues = z.infer<typeof feedbackSchema>;
+
 
 export const Feedback: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<CitizenFeedback[]>([
@@ -31,6 +36,7 @@ export const Feedback: React.FC = () => {
       description: 'The traffic signal timing is causing massive backups during construction of the high school solar installation.',
       submittedAt: '2026-07-16',
       status: 'Under Investigation',
+      isAnonymous: true,
     },
     {
       id: 'TCK-1982',
@@ -39,8 +45,11 @@ export const Feedback: React.FC = () => {
       description: 'Huge pothole in front of the bridge crossing causing safety hazards for cycling commuters.',
       submittedAt: '2026-07-12',
       status: 'Resolved',
+      isAnonymous: false,
+      contactEmail: 'commuter.maria@outlook.com',
     }
   ]);
+
 
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -48,6 +57,8 @@ export const Feedback: React.FC = () => {
     register,
     handleSubmit,
     reset,
+    watch,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<FeedbackFormValues>({
     resolver: zodResolver(feedbackSchema),
@@ -56,10 +67,31 @@ export const Feedback: React.FC = () => {
       address: '',
       description: '',
       citizen_contact: '',
+      submit_anonymously: false,
     }
   });
 
+  const submitAnonymously = watch('submit_anonymously');
+
   const onSubmit = async (data: FeedbackFormValues) => {
+    if (!data.submit_anonymously) {
+      if (!data.citizen_contact || data.citizen_contact.trim() === '') {
+        setError('citizen_contact', {
+          type: 'manual',
+          message: 'Contact email is required unless submitting anonymously.'
+        });
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.citizen_contact)) {
+        setError('citizen_contact', {
+          type: 'manual',
+          message: 'Please enter a valid email address.'
+        });
+        return;
+      }
+    }
+
     // Simulate API transport
     await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -70,11 +102,20 @@ export const Feedback: React.FC = () => {
       description: data.description,
       submittedAt: new Date().toISOString().split('T')[0],
       status: 'Open',
+      isAnonymous: data.submit_anonymously,
+      contactEmail: data.submit_anonymously ? undefined : data.citizen_contact,
     };
 
     setFeedbacks((prev) => [newTicket, ...prev]);
     setSubmitSuccess(true);
-    reset();
+    reset({
+      report_type: 'Pothole',
+      address: '',
+      description: '',
+      citizen_contact: '',
+      submit_anonymously: false,
+    });
+
 
     setTimeout(() => setSubmitSuccess(false), 4000);
   };
@@ -152,21 +193,37 @@ export const Feedback: React.FC = () => {
             )}
           </div>
 
-          {/* Email */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] uppercase font-bold text-neutral-400">Citizen Contact Email</label>
+          {/* Submit Anonymously Checkbox */}
+          <div className="flex items-center space-x-2 py-1">
             <input
-              type="text"
-              {...register('citizen_contact')}
-              placeholder="citizen@gmail.com"
-              className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+              type="checkbox"
+              id="submit_anonymously"
+              {...register('submit_anonymously')}
+              className="rounded border-neutral-805 bg-neutral-900 text-neutral-100 w-3.5 h-3.5 focus:ring-0 outline-none"
             />
-            {errors.citizen_contact && (
-              <span className="text-[10px] text-rose-500 flex items-center space-x-1">
-                <AlertCircle className="w-3 h-3" /> <span>{errors.citizen_contact.message}</span>
-              </span>
-            )}
+            <label htmlFor="submit_anonymously" className="text-[10px] text-neutral-400 select-none">
+              Submit report anonymously
+            </label>
           </div>
+
+          {/* Email */}
+          {!submitAnonymously && (
+            <div className="space-y-1.5 transition-all duration-200">
+              <label className="text-[10px] uppercase font-bold text-neutral-400">Citizen Contact Email</label>
+              <input
+                type="text"
+                {...register('citizen_contact')}
+                placeholder="citizen@gmail.com"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-600"
+              />
+              {errors.citizen_contact && (
+                <span className="text-[10px] text-rose-500 flex items-center space-x-1">
+                  <AlertCircle className="w-3 h-3" /> <span>{errors.citizen_contact.message}</span>
+                </span>
+              )}
+            </div>
+          )}
+
 
           <button
             type="submit"
@@ -183,35 +240,57 @@ export const Feedback: React.FC = () => {
         <h2 className="text-sm font-bold text-neutral-200 tracking-tight">Active Citizen Reports Registry</h2>
 
         <div className="space-y-4">
-          {feedbacks.map((item) => (
-            <div key={item.id} className="bg-neutral-950/60 border border-neutral-900 rounded-lg p-5 space-y-3">
-              <div className="flex justify-between items-center text-[10px]">
-                <span className="font-mono text-neutral-500 bg-neutral-900 px-2 py-0.5 border border-neutral-800 rounded">
-                  {item.id}
-                </span>
-                <span className={`px-2 py-0.5 border rounded-full font-semibold ${statusBadges[item.status]}`}>
-                  {item.status}
-                </span>
+          {feedbacks.length === 0 ? (
+            <div className="border border-neutral-900 border-dashed rounded-lg p-12 text-center space-y-4 bg-neutral-950/20">
+              <div className="p-3 bg-neutral-900/60 border border-neutral-850 rounded-full w-fit mx-auto text-neutral-500">
+                <FileText className="w-6 h-6" />
               </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center space-x-1.5 text-xs font-semibold text-neutral-200">
-                  <Tag className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>{item.type}</span>
-                </div>
-                <p className="text-xs text-neutral-400 leading-relaxed">{item.description}</p>
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] text-neutral-500 pt-2 border-t border-neutral-900/60">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>{item.location}</span>
-                </div>
-                <span>Submitted: {item.submittedAt}</span>
+              <div className="space-y-1">
+                <h4 className="text-xs font-bold text-neutral-300">No citizen reports yet</h4>
+                <p className="text-[10px] text-neutral-500 max-w-xs mx-auto">
+                  Start improving transparency by creating the first incident report using the form on the left.
+                </p>
               </div>
             </div>
-          ))}
+          ) : (
+            feedbacks.map((item) => (
+              <div key={item.id} className="bg-neutral-950/60 border border-neutral-900 rounded-lg p-5 space-y-3">
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="font-mono text-neutral-500 bg-neutral-900 px-2 py-0.5 border border-neutral-800 rounded">
+                    {item.id}
+                  </span>
+                  <span className={`px-2 py-0.5 border rounded-full font-semibold ${statusBadges[item.status]}`}>
+                    {item.status}
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center space-x-1.5 text-xs font-semibold text-neutral-200">
+                    <Tag className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>{item.type}</span>
+                  </div>
+                  <p className="text-xs text-neutral-400 leading-relaxed">{item.description}</p>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-neutral-500 pt-2 border-t border-neutral-900/60">
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{item.location}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 font-mono text-[9px]">
+                    <span className={item.isAnonymous ? 'text-neutral-500' : 'text-emerald-500 font-semibold'}>
+                      {item.isAnonymous ? 'Anonymous Citizen' : item.contactEmail || 'citizen@salay.gov'}
+                    </span>
+                    <span>•</span>
+                    <span>Submitted: {item.submittedAt}</span>
+                  </div>
+                </div>
+
+              </div>
+            ))
+          )}
         </div>
+
       </div>
     </div>
   );

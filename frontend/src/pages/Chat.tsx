@@ -1,161 +1,212 @@
-import React, { useState } from 'react';
-import { Send, Sparkles, User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 
-interface ChatMessage {
+import { 
+  MessageSquare, 
+  Send, 
+  Cpu, 
+  User, 
+  ArrowRight,
+  Sparkles
+} from 'lucide-react';
+import { showToast } from '../components/ui/Toast';
+
+interface Message {
   id: string;
-  sender: 'user' | 'assistant';
+  sender: 'user' | 'ai';
   text: string;
-  confidence?: number;
   timestamp: string;
+  sourceBadge?: string;
 }
 
 export const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'msg-1',
-      sender: 'assistant',
-      text: 'Hello! I am your Civic Transparency assistant. Ask me questions about municipal budgets, public works projects, or citizen feedback reports.',
-      timestamp: '02:15',
-    }
-  ]);
   const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = [
-    'What is the budget for the Oakridge School Solar project?',
-    'List all public works projects in progress.',
-    'Summarize recent citizen feedback regarding potholes.',
+  const suggestedQuestions = [
+    'Which infrastructure projects exceeded budget?',
+    'Show delayed road projects.',
+    'Summarize citizen complaints.',
+    'Which barangays received the largest funding?',
+    'Show projects completed this year.'
   ];
 
-  const handleSend = (text: string) => {
+  const mockReplies: Record<string, string> = {
+    'Which infrastructure projects exceeded budget?': 
+      'Based on the **Municipal Budget Outlay Registry 2025**, the **Maple Street Bridge Safety Reconstruction** (PRJ-9904) has exceeded its current phase allocation by **₱350,000.00** due to safety reinforcement costs. Total spent is **₱4.8M** against a ₱4.5M phase cap.',
+    'Show delayed road projects.': 
+      'Currently, **1 road infrastructure project** is marked as Delayed:\n\n• **Maple Street Bridge Safety Reconstruction** (PRJ-9904)\n  * Location: East Ward District\n  * Timeline: Sep 2024 - Dec 2026 (14 weeks behind schedule)\n  * Progress: 42%',
+    'Summarize citizen complaints.': 
+      'Our analysis of the **Citizen Feedback dataset** shows **43 reports** in the last month. Sentiment breakdown is **68% Negative** (primarily regarding flooded roads and drainage blocks) and **32% Neutral/Positive** (pothole repairs feedback).\n\nKey hotspot: **Ward 4 (North Metro)** reports the highest complaint density.',
+    'Which barangays received the largest funding?': 
+      'The largest municipal departments funding allocation went to **Ward 4 (North Metro)** with **₱12.5M** allocated for high school solar installations, followed by the **Downtown Core** with **₱3.4M** for bus lane transit expansions.',
+    'Show projects completed this year.': 
+      'Completed projects registry: \n\n• **Metro Transit Line-C Bus Lane Expansion** (PRJ-1024)\n  * Budget: ₱3,400,000.00\n  * Completed: June 2025\n  * Scope: Downtown Transit Core'
+  };
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
+
+  const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
-    const userMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
+    const userMessage: Message = {
+      id: Math.random().toString(),
       sender: 'user',
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: text,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setIsTyping(true);
 
-    // Simulate AI response logic matching Civic Transparency theme
-    setTimeout(() => {
-      let replyText = 'I am scanning the active municipal database stages. ';
-      let conf = 0.92;
+    // Simulate Snowflake Cortex latency
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-      if (text.toLowerCase().includes('solar') || text.toLowerCase().includes('oakridge')) {
-        replyText = 'The "Oakridge High School Solar Retrofit" is registered in Ward 4 under the Energy & Environment department. It has an allocated budget of $1,250,000.00 and is currently 68% complete.';
-        conf = 0.98;
-      } else if (text.toLowerCase().includes('feedback') || text.toLowerCase().includes('pothole')) {
-        replyText = 'Based on the citizen complaint stage databases, we have 1 open report regarding road conditions (potholes) in the Downtown Core. Feedback sentiment maps to negative due to transit delays.';
-        conf = 0.89;
-      } else if (text.toLowerCase().includes('projects') || text.toLowerCase().includes('works')) {
-        replyText = 'There are currently 4 recorded Public Works projects. 1 is Completed, 2 are In Progress or Delayed, and 1 is Planned.';
-        conf = 0.95;
-      } else {
-        replyText = `Regarding your query "${text}": No active databases match the specific parameters. Initial budget allocations list a total of $45,000,000 allocated across municipal divisions. Please refine your search.`;
-      }
+    let aiReply = "I'm sorry, I couldn't search that query in our local mock database. Try selecting one of the suggested questions above to check Snowflake Cortex integrations.";
+    
+    // Find closest match or exact suggested question key
+    const matchKey = Object.keys(mockReplies).find(k => text.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(text.toLowerCase()));
+    if (matchKey) {
+      aiReply = mockReplies[matchKey];
+    }
 
-      const assistantMsg: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        sender: 'assistant',
-        text: replyText,
-        confidence: conf,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
+    const aiMessage: Message = {
+      id: Math.random().toString(),
+      sender: 'ai',
+      text: aiReply,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      sourceBadge: 'Cortex Llama-3-70b • Staged CSV Records'
+    };
 
-      setMessages((prev) => [...prev, assistantMsg]);
-    }, 800);
+    setMessages((prev) => [...prev, aiMessage]);
+    setIsTyping(false);
+    showToast('Cortex AI summary retrieved successfully', 'success');
   };
 
   return (
-    <div className="flex flex-col h-[75vh] border border-neutral-900 bg-neutral-950/40 rounded-lg overflow-hidden">
-      {/* Panel Header */}
-      <div className="flex justify-between items-center px-6 py-4 bg-neutral-950 border-b border-neutral-900">
-        <div className="flex items-center space-x-2">
-          <Sparkles className="w-4 h-4 text-neutral-300" />
-          <h2 className="text-sm font-bold text-neutral-200">Cortex AI Q&A Panel</h2>
+    <div className="h-[78vh] flex flex-col justify-between border border-neutral-900 bg-neutral-950/20 rounded-xl overflow-hidden relative text-left">
+      {/* Background logo marker */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
+
+      {/* Chat header panel */}
+      <div className="px-6 py-4 border-b border-neutral-900 bg-neutral-950 flex items-center justify-between z-10 shrink-0">
+        <div className="flex items-center space-x-2.5">
+          <Cpu className="w-5 h-5 text-emerald-400" />
+          <div>
+            <h3 className="text-xs font-bold text-neutral-200">Cortex Transparency Q&A</h3>
+            <p className="text-[10px] text-neutral-500">Ask natural language queries on municipal records.</p>
+          </div>
         </div>
-        <span className="text-[10px] text-emerald-500 font-mono flex items-center space-x-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping mr-1" />
-          cortex-llama3-70b
-        </span>
+        <div className="flex items-center space-x-2 text-[10px] text-neutral-500 font-mono">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>Snowflake Cortex Enabled</span>
+        </div>
       </div>
 
-      {/* Message Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg) => {
-          const isAssistant = msg.sender === 'assistant';
-          return (
-            <div key={msg.id} className={`flex space-x-3 max-w-2xl ${isAssistant ? '' : 'ml-auto justify-end'}`}>
-              {isAssistant && (
-                <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-3.5 h-3.5 text-neutral-400" />
-                </div>
-              )}
+      {/* Messages body or Suggested Questions empty state */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 z-10">
+        {messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center space-y-6 text-center max-w-lg mx-auto">
+            <div className="p-4 bg-neutral-900/60 border border-neutral-850 rounded-2xl text-neutral-300">
+              <MessageSquare className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
+              <h4 className="text-xs font-bold text-neutral-200">SALAY AI Search Portal</h4>
+              <p className="text-[10px] text-neutral-500 leading-relaxed mt-1">
+                This engine uses **Snowflake Cortex LLM** to translate citizen questions directly into queries and compile summaries of municipal budgets, project progress, and complaints.
+              </p>
+            </div>
 
-              <div className="space-y-1">
-                <div className={`p-4 rounded-lg text-xs leading-relaxed ${
-                  isAssistant 
-                    ? 'bg-neutral-950 border border-neutral-900 text-neutral-200' 
-                    : 'bg-neutral-100 text-neutral-900 font-medium'
-                }`}>
-                  {msg.text}
-                </div>
+            {/* Clickable suggested questions */}
+            <div className="space-y-2 w-full text-left">
+              <span className="text-[9px] uppercase font-bold text-neutral-600 tracking-wider block px-1">Suggested Inquiries</span>
+              <div className="grid grid-cols-1 gap-2">
+                {suggestedQuestions.map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSend(q)}
+                    className="p-3 border border-neutral-900 bg-neutral-950/80 hover:border-neutral-800 rounded-lg text-left text-xs text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-between group active:scale-[0.99]"
+                  >
+                    <span>{q}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400 shrink-0 ml-2" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((m) => {
+              const isUser = m.sender === 'user';
+              return (
+                <div key={m.id} className={`flex items-start gap-3 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse text-right' : 'mr-auto'}`}>
+                  {/* Avatar bubble */}
+                  <div className={`p-2 rounded-full border border-neutral-900 shrink-0 ${isUser ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-900 text-emerald-400'}`}>
+                    {isUser ? <User className="w-3.5 h-3.5" /> : <Cpu className="w-3.5 h-3.5" />}
+                  </div>
 
-                <div className="flex items-center justify-between px-1 text-[9px] text-neutral-500">
-                  <span>{msg.timestamp}</span>
-                  {isAssistant && msg.confidence && (
-                    <span className="font-mono">Confidence: {Math.round(msg.confidence * 100)}%</span>
-                  )}
+                  {/* Bubble text */}
+                  <div className="space-y-1">
+                    <div className={`p-3 rounded-lg text-xs leading-relaxed text-left whitespace-pre-line border ${
+                      isUser 
+                        ? 'bg-neutral-900 border-neutral-800 text-neutral-200' 
+                        : 'bg-neutral-950 border-neutral-900 text-neutral-100'
+                    }`}>
+                      {m.text}
+                    </div>
+                    {/* Source badges */}
+                    <div className="flex items-center space-x-2 text-[9px] text-neutral-500 font-mono">
+                      <span>{m.timestamp}</span>
+                      {m.sourceBadge && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-500 font-semibold">{m.sourceBadge}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* AI Typing loader */}
+            {isTyping && (
+              <div className="flex items-start gap-3 max-w-[80%]">
+                <div className="p-2 rounded-full border border-neutral-900 bg-neutral-900 text-emerald-400 shrink-0">
+                  <Cpu className="w-3.5 h-3.5 animate-spin" />
+                </div>
+                <div className="bg-neutral-950 border border-neutral-900 p-3 rounded-lg text-xs text-neutral-500">
+                  Cortex parsing dataset vectors...
                 </div>
               </div>
-
-              {!isAssistant && (
-                <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
-                  <User className="w-3.5 h-3.5 text-neutral-400" />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Suggestions and inputs */}
-      <div className="p-4 bg-neutral-950 border-t border-neutral-900 space-y-4">
-        {messages.length === 1 && (
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((sug, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSend(sug)}
-                className="text-[10px] text-left px-3 py-1.5 bg-neutral-900 hover:bg-neutral-850 hover:text-neutral-200 border border-neutral-800 rounded-md transition-colors"
-              >
-                {sug}
-              </button>
-            ))}
+            )}
+            <div ref={bottomRef} />
           </div>
         )}
+      </div>
 
-        <form
+      {/* Input box form */}
+      <div className="p-4 border-t border-neutral-900 bg-neutral-950 z-10 shrink-0">
+        <form 
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);
           }}
-          className="flex space-x-2"
+          className="flex items-center space-x-3"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Query municipal database stages..."
-            className="flex-1 bg-neutral-900 border border-neutral-800 rounded-md px-4 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700 placeholder-neutral-500"
+            placeholder="Type a transparency question (e.g. Which road projects are delayed?)..."
+            className="w-full bg-neutral-900 border border-neutral-850 rounded px-4 py-2.5 text-xs text-neutral-250 outline-none focus:border-neutral-700 placeholder-neutral-600"
           />
           <button
             type="submit"
-            className="p-2.5 bg-neutral-100 text-neutral-900 hover:bg-neutral-200 transition-all rounded-md flex items-center justify-center active:scale-95 shrink-0"
-            aria-label="Send query"
+            className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 rounded font-bold transition-all active:scale-95 shrink-0"
+            aria-label="Send message"
           >
             <Send className="w-4 h-4" />
           </button>

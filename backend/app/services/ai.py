@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
+
 class AbstractAIService(ABC):
     @abstractmethod
     def generate_chat_response(self, query: str, session_id: str) -> Dict[str, Any]:
         pass
+
 
 class MockAIService(AbstractAIService):
     def __init__(self) -> None:
@@ -13,7 +15,7 @@ class MockAIService(AbstractAIService):
     def generate_chat_response(self, query: str, session_id: str) -> Dict[str, Any]:
         query_lower = query.lower()
         confidence = 0.92
-        
+
         if "solar" in query_lower or "oakridge" in query_lower:
             response = (
                 "The 'Oakridge High School Solar Retrofit' is located in Ward 4 (North Metro) "
@@ -40,9 +42,9 @@ class MockAIService(AbstractAIService):
                 "Overall municipal budget registry contains $45,000,000 allocated for FY-2026. "
                 "Please specify department, project name, or region details."
             )
-            
+
         return {
             "session_id": session_id,
             "response": response,
-            "confidence_score": confidence
+            "confidence_score": confidence,
         }

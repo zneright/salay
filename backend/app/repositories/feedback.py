@@ -2,6 +2,7 @@ import datetime
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
+
 class AbstractFeedbackRepository(ABC):
     @abstractmethod
     def save_feedback(self, feedback_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -10,6 +11,7 @@ class AbstractFeedbackRepository(ABC):
     @abstractmethod
     def get_all_feedback(self) -> List[Dict[str, Any]]:
         pass
+
 
 class MockFeedbackRepository(AbstractFeedbackRepository):
     def __init__(self) -> None:
@@ -29,7 +31,7 @@ class MockFeedbackRepository(AbstractFeedbackRepository):
                 "description": "Huge pothole in front of the bridge crossing causing safety hazards for cycling commuters.",
                 "submittedAt": "2026-07-12",
                 "status": "Resolved",
-            }
+            },
         ]
 
     def save_feedback(self, feedback_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -40,7 +42,7 @@ class MockFeedbackRepository(AbstractFeedbackRepository):
             "location": feedback_data["address"],
             "description": feedback_data["description"],
             "submittedAt": datetime.date.today().isoformat(),
-            "status": "Open"
+            "status": "Open",
         }
         self._feedbacks.insert(0, new_entry)
         return new_entry

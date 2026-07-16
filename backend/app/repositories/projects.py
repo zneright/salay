@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
+
 class AbstractProjectRepository(ABC):
     @abstractmethod
     def get_all_projects(self, department: str = None) -> List[Dict[str, Any]]:
@@ -9,6 +10,7 @@ class AbstractProjectRepository(ABC):
     @abstractmethod
     def get_project_by_id(self, project_id: str) -> Dict[str, Any] | None:
         pass
+
 
 class MockProjectRepository(AbstractProjectRepository):
     def __init__(self) -> None:
@@ -53,12 +55,16 @@ class MockProjectRepository(AbstractProjectRepository):
                 "location": "District 3 Subdivisions",
                 "timeline": "Aug 2026 - Mar 2027",
                 "progress": 0,
-            }
+            },
         ]
 
     def get_all_projects(self, department: str = None) -> List[Dict[str, Any]]:
         if department:
-            return [p for p in self._projects if department.lower() in p["department"].lower()]
+            return [
+                p
+                for p in self._projects
+                if department.lower() in p["department"].lower()
+            ]
         return self._projects
 
     def get_project_by_id(self, project_id: str) -> Dict[str, Any] | None:
