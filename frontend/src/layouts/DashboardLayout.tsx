@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthProvider';
 import { showToast } from '../components/ui/Toast';
-import { GuidedTour } from '../components/ui/GuidedTour';
 
 import { 
   LayoutDashboard, 
@@ -263,8 +262,8 @@ export const DashboardLayout: React.FC = () => {
         />
       )}
 
-      {/* Guided Demo Walkthrough script panel */}
-      <GuidedTour />
+
+
 
       {/* Profile Modal */}
       {profileModalOpen && (

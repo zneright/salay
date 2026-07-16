@@ -5,6 +5,7 @@ import { queryClient } from '../lib/queryClient';
 import { AppRoutes } from '../routes/AppRoutes';
 import { ErrorBoundary } from '../components/ui/ErrorBoundary';
 import { AuthProvider } from '../providers/AuthProvider';
+import { GuidedTour } from '../components/ui/GuidedTour';
 
 export const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ export const App: React.FC = () => {
         <AuthProvider>
           <BrowserRouter>
             <AppRoutes />
+            <GuidedTour />
           </BrowserRouter>
         </AuthProvider>
       </QueryClientProvider>
@@ -20,3 +22,4 @@ export const App: React.FC = () => {
   );
 };
 export default App;
+
