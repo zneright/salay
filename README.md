@@ -22,40 +22,47 @@ SALAY serves as a bridge between complex civic data and public transparency. Usi
 
 ---
 
-## 📸 Screenshots & Role Views Showcase
+## 📸 Screenshots & Showcase
 
-### 1. First: Landing Page
+### 1. First: CoCo CLI Agent Terminal
+*Embedded interactive terminal executing `coco status`, `coco cortex`, `coco audit`, and `coco ingest` commands with live sub-millisecond Snowflake DB & Cortex LLM diagnostics.*
+
+![First: CoCo CLI Agent Terminal](docs/images/coco_cli_terminal.png)
+
+---
+
+### 2. Second: Landing Page
 *Modern, high-impact landing page featuring Snowflake CoCo CLI branding, tech stack matrix, and instant 1-click live demo entry.*
 
-![First: Landing Page](docs/images/landing_page.png)
+![Second: Landing Page](docs/images/landing_page.png)
 
 ---
 
-### 2. Second: Auditor Dashboard
+### 3. Third: Auditor Dashboard
 *Forensic Crimson Rose theme featuring Cortex AI high-variance budget anomaly alerts, line-item PDF contract proof inspector, and Snowflake SQL vector search.*
 
-![Second: Auditor Dashboard](docs/images/auditor_dashboard.png)
+![Third: Auditor Dashboard](docs/images/auditor_dashboard.png)
 
 ---
 
-### 3. Third: Citizen Dashboard
+### 4. Fourth: Citizen Dashboard
 *Public works transparency matrix, mobile photo proofs, plain English Cortex AI chat assistant, and anonymous whistleblower incident reporting.*
 
-![Third: Citizen Dashboard](docs/images/citizen_dashboard.png)
+![Fourth: Citizen Dashboard](docs/images/citizen_dashboard.png)
 
 ---
 
-### 4. Fourth: Government Official Dashboard
+### 5. Fifth: Government Official Dashboard
 *Executive Emerald theme displaying municipal department appropriations, outlay utilization rates, and the Auditor Anomaly Review Queue.*
 
-![Fourth: Government Official Dashboard](docs/images/official_dashboard.png)
+![Fifth: Government Official Dashboard](docs/images/official_dashboard.png)
 
 ---
 
-### 5. Fifth: Admin Dashboard
+### 6. Sixth: Admin Dashboard
 *System Governance and CoCo CLI Control Suite (`coco status`, `coco cortex`, `coco audit`), Snowflake DB schema diagnostics, and real-time ingestion logs.*
 
-![Fifth: Admin Dashboard](docs/images/admin_dashboard.png)
+![Sixth: Admin Dashboard](docs/images/admin_dashboard.png)
 
 ---
 
