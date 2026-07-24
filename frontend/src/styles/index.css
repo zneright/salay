@@ -82,3 +82,13 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-neutral-400 dark:bg-neutral-700;
 }
+
+/* Hide scrollbar for clean horizontal scroll chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

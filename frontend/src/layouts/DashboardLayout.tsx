@@ -179,7 +179,7 @@ export const DashboardLayout: React.FC = () => {
       </header>
 
       {/* Main Page Area */}
-      <main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">
+      <main className="flex-1 p-2 sm:p-4 md:p-8 pb-20 md:pb-8">
         <Outlet />
       </main>
 

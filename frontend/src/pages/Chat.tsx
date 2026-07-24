@@ -451,91 +451,125 @@ export const Chat: React.FC = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-120px)] max-w-7xl mx-auto gap-4 animate-fade-in text-left">
+    <div className="flex h-[calc(100dvh-105px)] md:h-[calc(100vh-120px)] max-w-7xl mx-auto gap-2 md:gap-4 animate-fade-in text-left relative overflow-hidden md:overflow-visible">
       
       {/* Sessions History Drawer */}
       {showDrawer && (
-        <div className="w-64 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 shadow-sm shrink-0 space-y-3">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-              <Bot className="w-3.5 h-3.5 text-sky-500" />
-              Saved Sessions
-            </h3>
-            <button
-              onClick={handleCreateNewSession}
-              className="p-1.5 rounded-lg bg-sky-500/10 text-sky-500 hover:bg-sky-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1"
-              title="New Chat Session"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          </div>
+        <>
+          {/* Mobile Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-neutral-950/60 backdrop-blur-xs"
+            onClick={() => setShowDrawer(false)}
+          />
 
-          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-            {sessions.map((s) => (
-              <div
-                key={s.id}
-                onClick={() => setActiveSessionId(s.id)}
-                className={`group flex items-center justify-between p-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
-                  s.id === activeSessionId
-                    ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                }`}
-              >
-                <div className="truncate pr-2">
-                  <p className="truncate font-semibold">{s.title}</p>
-                  <p className="text-[10px] text-neutral-400">{s.createdAt}</p>
-                </div>
-                {sessions.length > 1 && (
-                  <button
-                    onClick={(e) => handleDeleteSession(s.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-neutral-400 hover:text-rose-500 transition-all"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                )}
+          {/* Drawer Container (Slide-over on mobile, Inline on desktop) */}
+          <div className="fixed md:relative inset-y-0 left-0 z-50 md:z-auto w-72 md:w-64 flex flex-col bg-white dark:bg-neutral-900 border-r md:border border-neutral-200 dark:border-neutral-800 p-3 shadow-2xl md:shadow-sm shrink-0 space-y-3 md:rounded-2xl h-full">
+            <div className="flex items-center justify-between px-2 pt-2 md:pt-0">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5 text-sky-500" />
+                Saved Sessions
+              </h3>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleCreateNewSession}
+                  className="p-1.5 rounded-lg bg-sky-500/10 text-sky-500 hover:bg-sky-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1"
+                  title="New Chat Session"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setShowDrawer(false)}
+                  className="md:hidden p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
               </div>
-            ))}
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+              {sessions.map((s) => (
+                <div
+                  key={s.id}
+                  onClick={() => {
+                    setActiveSessionId(s.id);
+                    setShowDrawer(false);
+                  }}
+                  className={`group flex items-center justify-between p-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                    s.id === activeSessionId
+                      ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20'
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }`}
+                >
+                  <div className="truncate pr-2">
+                    <p className="truncate font-semibold">{s.title}</p>
+                    <p className="text-[10px] text-neutral-400">{s.createdAt}</p>
+                  </div>
+                  {sessions.length > 1 && (
+                    <button
+                      onClick={(e) => handleDeleteSession(s.id, e)}
+                      className="opacity-80 md:opacity-0 group-hover:opacity-100 p-1 text-neutral-400 hover:text-rose-500 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col space-y-3 min-w-0">
+      <div className="flex-1 flex flex-col space-y-2.5 sm:space-y-3 min-w-0 h-full">
         
         {/* 1. Header Toolbar & Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 sm:p-3.5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setShowDrawer(!showDrawer)}
-              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-sky-500 transition-all"
+              className="p-1.5 sm:p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-sky-500 transition-all shrink-0"
               title="Toggle Sessions Drawer"
             >
               {showDrawer ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
             </button>
 
-            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-500 border border-sky-500/20">
-              <Cpu className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 rounded-xl bg-sky-500/10 text-sky-500 border border-sky-500/20 shrink-0">
+              <Cpu className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base font-bold text-neutral-900 dark:text-white">Cortex AI Analyst & PDF Search</h1>
-                <SnowflakeBadge variant="cortex" label={selectedModel} />
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h1 className="text-xs sm:text-base font-bold text-neutral-900 dark:text-white truncate">
+                  Cortex AI Analyst
+                </h1>
+                <div className="hidden xs:inline-flex">
+                  <SnowflakeBadge variant="cortex" label={selectedModel} size="sm" />
+                </div>
+                <span className="hidden lg:inline-flex px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
                   ⚡ Free-Tier Token Saver Active
                 </span>
               </div>
-              <p className="text-xs text-neutral-500 truncate max-w-md">Lightweight grounded search across live Snowflake tables & PDF audit proofs</p>
+              <p className="hidden sm:block text-xs text-neutral-500 truncate max-w-md">
+                Lightweight grounded search across live Snowflake tables & PDF audit proofs
+              </p>
             </div>
+
+            <button
+              onClick={handleExportReport}
+              className="sm:hidden p-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all text-xs font-semibold shrink-0"
+              title="Download Session Report"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Model & Dataset Selectors */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-neutral-800 shrink-0">
             {/* Model Selector */}
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
-              className="bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 focus:outline-none cursor-pointer"
+              className="bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-[11px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 focus:outline-none cursor-pointer flex-1 sm:flex-none max-w-[150px] sm:max-w-none truncate"
             >
               {availableModels.map((m) => (
                 <option key={m.id} value={m.id} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
@@ -545,12 +579,12 @@ export const Chat: React.FC = () => {
             </select>
 
             {/* Dataset Scope */}
-            <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700">
-              <Filter className="w-3.5 h-3.5 text-neutral-400" />
+            <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 flex-1 sm:flex-none min-w-0">
+              <Filter className="w-3 h-3 text-neutral-400 shrink-0" />
               <select
                 value={selectedDataset}
                 onChange={(e) => setSelectedDataset(e.target.value)}
-                className="bg-transparent text-xs text-neutral-800 dark:text-neutral-200 font-medium focus:outline-none cursor-pointer"
+                className="bg-transparent text-[11px] sm:text-xs text-neutral-800 dark:text-neutral-200 font-medium focus:outline-none cursor-pointer w-full max-w-[150px] sm:max-w-none truncate"
               >
                 {datasets.map((d) => (
                   <option key={d} value={d} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
@@ -560,10 +594,10 @@ export const Chat: React.FC = () => {
               </select>
             </div>
 
-            {/* Export Markdown Report */}
+            {/* Export Markdown Report (Desktop) */}
             <button
               onClick={handleExportReport}
-              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all text-xs font-semibold flex items-center gap-1"
+              className="hidden sm:flex p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all text-xs font-semibold items-center gap-1 shrink-0"
               title="Download Session Report"
             >
               <Download className="w-3.5 h-3.5" />
@@ -572,21 +606,21 @@ export const Chat: React.FC = () => {
         </div>
 
         {/* 2. Messages Conversation View */}
-        <div className="flex-1 overflow-y-auto p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
+        <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3 sm:space-y-4 min-w-0">
           {activeSession.messages.map((m) => (
             <div
               key={m.id}
-              className={`flex gap-3 text-xs ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-2 sm:gap-3 text-xs ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {m.sender === 'ai' && (
-                <div className="w-8 h-8 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-500 flex items-center justify-center shrink-0">
-                  <Cpu className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-500 flex items-center justify-center shrink-0">
+                  <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               )}
 
-              <div className={`space-y-2 max-w-2xl ${m.sender === 'user' ? 'items-end text-right' : 'items-start'}`}>
+              <div className={`space-y-2 max-w-[88%] sm:max-w-2xl ${m.sender === 'user' ? 'items-end text-right' : 'items-start'}`}>
                 <div
-                  className={`p-4 rounded-2xl ${
+                  className={`p-3 sm:p-4 rounded-2xl break-words ${
                     m.sender === 'user'
                       ? 'bg-sky-600 text-white shadow-xs'
                       : 'bg-neutral-100 dark:bg-neutral-800/80 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700'
@@ -596,17 +630,17 @@ export const Chat: React.FC = () => {
 
                   {/* PDF Document Proof Badge */}
                   {m.pdfAttachmentName && (
-                    <div className="mt-3 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-600 dark:text-sky-400 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
-                      <div className="flex items-center gap-2">
+                    <div className="mt-3 p-2.5 sm:p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-600 dark:text-sky-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-semibold">
+                      <div className="flex items-center gap-2 min-w-0">
                         <FileText className="w-4 h-4 text-sky-500 shrink-0" />
-                        <span>Attached Project Technical Proof: <strong>{getProjectTitleForDoc(m.pdfAttachmentName)}</strong></span>
+                        <span className="truncate">Attached Proof: <strong>{getProjectTitleForDoc(m.pdfAttachmentName)}</strong></span>
                       </div>
                       <button
                         onClick={() => {
                           setInspectDoc(m.pdfAttachmentName || null);
                           setInspectSnippet(m.pdfSnippet);
                         }}
-                        className="px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95"
+                        className="w-full sm:w-auto justify-center px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95 shrink-0"
                       >
                         <ExternalLink className="w-3 h-3" />
                         <span>Inspect Proof</span>
@@ -626,15 +660,15 @@ export const Chat: React.FC = () => {
                       </button>
 
                       {showSqlId === m.id && (
-                        <div className="relative mt-2 p-3 rounded-xl bg-neutral-950 font-mono text-[11px] text-emerald-400 border border-neutral-800 overflow-x-auto">
+                        <div className="relative mt-2 p-2.5 sm:p-3 rounded-xl bg-neutral-950 font-mono text-[10px] sm:text-[11px] text-emerald-400 border border-neutral-800 overflow-x-auto max-w-full">
                           <button
                             onClick={() => handleCopySql(m.sqlPreview || '', m.id)}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10px] font-semibold flex items-center gap-1"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10px] font-semibold flex items-center gap-1 z-10"
                           >
                             {copiedSqlId === m.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                             <span>{copiedSqlId === m.id ? 'Copied' : 'Copy'}</span>
                           </button>
-                          <pre>{m.sqlPreview}</pre>
+                          <pre className="pr-16">{m.sqlPreview}</pre>
                         </div>
                       )}
                     </div>
@@ -648,7 +682,7 @@ export const Chat: React.FC = () => {
                       <button
                         key={f}
                         onClick={() => handleSend(f)}
-                        className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500 hover:text-white border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[11px] font-medium transition-all active:scale-95 text-left"
+                        className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500 hover:text-white border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[11px] font-medium transition-all active:scale-95 text-left max-w-full truncate"
                       >
                         💡 {f}
                       </button>
@@ -674,20 +708,20 @@ export const Chat: React.FC = () => {
               </div>
 
               {m.sender === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center shrink-0">
-                  <User className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center shrink-0">
+                  <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               )}
             </div>
           ))}
 
           {isTyping && (
-            <div className="flex gap-3 text-xs items-center">
-              <div className="w-8 h-8 rounded-full bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0 animate-pulse">
-                <Cpu className="w-4 h-4" />
+            <div className="flex gap-2 sm:gap-3 text-xs items-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0 animate-pulse">
+                <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
-              <div className="px-4 py-2.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-sky-500 animate-spin" />
+              <div className="px-3.5 py-2.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 flex items-center gap-2 text-[11px] sm:text-xs">
+                <Sparkles className="w-3.5 h-3.5 text-sky-500 animate-spin shrink-0" />
                 <span>Cortex AI is querying Snowflake context & scanning PDF audit proofs...</span>
               </div>
             </div>
@@ -697,15 +731,15 @@ export const Chat: React.FC = () => {
         </div>
 
         {/* 3. Dynamic Suggested Prompts */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-sky-500" /> Suggested Prompts:
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 shrink-0 max-w-full">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1 shrink-0">
+            <Sparkles className="w-3 h-3 text-sky-500" /> Prompts:
           </span>
           {suggestedQuestions.map((q) => (
             <button
               key={q}
               onClick={() => handleSend(q)}
-              className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-sky-500/50 text-neutral-700 dark:text-neutral-300 text-xs transition-all active:scale-95 text-left truncate max-w-xs"
+              className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-sky-500/50 text-neutral-700 dark:text-neutral-300 text-[11px] sm:text-xs transition-all active:scale-95 text-left shrink-0 whitespace-nowrap"
             >
               {q}
             </button>
@@ -722,17 +756,17 @@ export const Chat: React.FC = () => {
         >
           <input
             type="text"
-            placeholder="Ask Cortex AI about projects, budgets, complaints, or search PDF proofs..."
+            placeholder="Ask Cortex AI or search PDF proofs..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+            className="flex-1 px-3.5 py-2.5 sm:py-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm min-w-0"
           />
           <button
             type="submit"
-            className="px-5 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
+            className="px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>Send</span>
+            <span className="hidden sm:inline">Send</span>
           </button>
         </form>
       </div>
