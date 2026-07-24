@@ -215,7 +215,7 @@ export const CoCoTerminalModal: React.FC<CoCoTerminalModalProps> = ({
                 </div>
                 <span className="text-[10px] text-slate-500">{log.elapsed_ms}ms • {log.timestamp}</span>
               </div>
-              <pre className="bg-slate-900/90 text-emerald-400 p-3 rounded border border-slate-800/80 text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed shadow-inner">
+              <pre className="bg-slate-900/90 text-emerald-400 p-3 rounded border border-slate-800/80 text-xs overflow-x-auto whitespace-pre-wrap break-all max-w-full leading-relaxed shadow-inner">
                 {typeof log.output === 'string'
                   ? log.output
                   : JSON.stringify(log.output, null, 2)}
