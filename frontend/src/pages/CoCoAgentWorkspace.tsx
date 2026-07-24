@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../providers/AuthProvider';
+import { showToast } from '../components/ui/Toast';
 import { 
   Terminal, 
   Cpu, 
@@ -13,8 +16,23 @@ import { SnowflakeBadge } from '../components/ui/SnowflakeBadge';
 import { CoCoTerminalModal } from '../components/ui/CoCoTerminalModal';
 
 export const CoCoAgentWorkspace: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [activeModalCommand, setActiveModalCommand] = useState('coco status');
+
+  // Strict Security RBAC Route Guard
+  useEffect(() => {
+    if (user && user.role !== 'Administrator') {
+      showToast('⛔ Security RBAC: Administrator role required to access CoCo CLI Agent', 'error');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  if (user && user.role !== 'Administrator') {
+    return null;
+  }
 
   const handleQuickRun = (cmd: string) => {
     setActiveModalCommand(cmd);
