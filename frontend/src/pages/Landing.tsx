@@ -4,202 +4,383 @@ import {
   ArrowRight, 
   Layers, 
   Cpu, 
-  Database
+  Database, 
+  Sparkles, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Terminal, 
+  TrendingUp, 
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 import { Navbar } from '../components/ui/Navbar';
+import { SnowflakeBadge } from '../components/ui/SnowflakeBadge';
 
 export const Landing: React.FC = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
+  const [activePersona, setActivePersona] = useState<'citizen' | 'auditor' | 'official'>('citizen');
+
+  const demoQueries = [
+    {
+      q: 'Which infrastructure projects exceeded their allocated budget in 2025?',
+      response: 'Based on the **Municipal Budget Outlay Registry 2025**, the **Metro Manila Flood Control Pumping Station Phase 3** (Contract ID: `DPWH-24C00088`) has exceeded its phase allocation by **₱45,200,000.00** due to unaccounted pile driving variations.',
+      project: 'Metro Manila Flood Control Phase 3',
+      contractId: 'DPWH-24C00088',
+      budget: '₱350,000,000.00',
+      status: 'Over Budget',
+      confidence: '98.4%',
+      sql: 'SELECT contract_id, title, budget_php, variance FROM CIVIC_TRANSPARENCY_DB.PUBLIC.PROJECTS WHERE variance > 0;'
+    },
+    {
+      q: 'Show delayed road construction projects in Davao Bypass Tunnel project.',
+      response: 'The **Davao City Bypass Construction Project** (`DPWH-23CSX012`) reports a **14-week timeline delay** caused by right-of-way geological stability revisions.',
+      project: 'Davao City Bypass Tunnel',
+      contractId: 'DPWH-23CSX012',
+      budget: '₱1,200,000,000.00',
+      status: 'Delayed 14 Weeks',
+      confidence: '99.1%',
+      sql: 'SELECT project_name, delay_weeks, cause FROM CIVIC_TRANSPARENCY_DB.PUBLIC.CONTRACTS WHERE delay_weeks > 8;'
+    },
+    {
+      q: 'Summarize citizens feedback reports regarding Bataan-Cavite Interlink Bridge.',
+      response: 'Retrieved **142 citizen complaints** from Snowflake Stage `CITIZEN_FEEDBACK_STAGE`. Primary concerns center on local fisherfolk access routes and environmental mitigation compliance.',
+      project: 'Bataan-Cavite Interlink Bridge',
+      contractId: 'DPWH-24Z00001',
+      budget: '₱175,000,000.00',
+      status: 'Under Review',
+      confidence: '97.8%',
+      sql: 'SELECT COUNT(*), category FROM CIVIC_TRANSPARENCY_DB.PUBLIC.FEEDBACK GROUP BY category;'
+    }
+  ];
+
+  const personas = {
+    citizen: {
+      title: 'For Concerned Citizens',
+      desc: 'Look up municipal spending in plain English without needing legal or accounting expertise.',
+      highlights: ['Search local infrastructure budgets', 'Submit verifiable flag reports', 'Track project completion timelines']
+    },
+    auditor: {
+      title: 'For Independent Auditors',
+      desc: 'Inspect raw PDF contracts with Cortex LLM parsing, SQL query verification, and line-item proofs.',
+      highlights: ['Inspect raw PDF contract proofs', 'Verify SQL query execution in Snowflake', 'Audit variance and price escalation']
+    },
+    official: {
+      title: 'For Public Officials',
+      desc: 'Monitor department allocations in real-time with automated CoCo CLI status reports and alerts.',
+      highlights: ['Real-time budget outlay dashboards', 'Automated CoCo CLI status tracking', 'Cross-department expenditure summaries']
+    }
+  };
 
   const faqs = [
     {
       q: 'How does SALAY access municipal records?',
-      a: 'SALAY ingests public PDFs, civic budgets ledgers, and complaints streams into Snowflake Stages. Snowflake pipelines automatically structure and index the data for query optimization.'
+      a: 'SALAY ingests public contract PDFs, civic budget ledgers, and citizen feedback streams into Snowflake Stages. Snowflake pipelines automatically structure and index the data for instant query optimization.'
     },
     {
       q: 'What is the role of Snowflake Cortex AI?',
-      a: 'Cortex AI handles secure, LLM-powered semantic parsing directly inside Snowflake, compiling natural language citizen questions into exact project and spending answers with zero external data exposure.'
+      a: 'Cortex AI handles secure, LLM-powered semantic parsing directly inside Snowflake (using llama3-70b and llama3.1-405b), compiling natural language citizen questions into exact project and spending answers with zero external data exposure.'
+    },
+    {
+      q: 'Can I test the platform without a live Snowflake account?',
+      a: 'Yes! SALAY includes an automated Zero-Downtime Offline Fallback mode. You can test the full end-to-end experience, PDF parsing engine, and CoCo CLI interface immediately.'
     },
     {
       q: 'Who can use the platform?',
-      a: 'Citizens look up public projects. Officials monitor budget spending. Auditors query timeline logs. All stakeholders consume structured views suited for their permissions.'
+      a: 'Citizens look up public projects. Public officials monitor budget spending. Auditors query timeline logs and PDF proof documents. All stakeholders consume structured views suited for their permissions.'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
       {/* Sticky Header Navbar */}
       <Navbar />
 
       {/* 1. Hero Section (Above the Fold) */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden border-b border-border">
+      <section className="relative min-h-[92vh] flex flex-col items-center justify-center px-6 overflow-hidden border-b border-neutral-900">
         {/* Glow grid mesh background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-75" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-80" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-sky-600/20 via-cyan-500/10 to-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10 py-16">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-secondary border border-border rounded-full text-[10px] font-bold text-primary font-mono uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1" />
-            Ingested via Snowflake CoCo CLI
+        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10 pt-12 pb-16">
+          {/* Top Badge Pill */}
+          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 bg-neutral-900/90 border border-neutral-800 rounded-full text-xs font-semibold text-neutral-300 shadow-xl backdrop-blur-md">
+            <img src="/logo.png" alt="SALAY Logo" className="w-5 h-5 object-contain" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-0.5" />
+            <span className="bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent font-bold">
+              Snowflake CoCo CLI Hackathon 2026
+            </span>
           </div>
 
-          <h1 className="text-[40px] md:text-[64px] font-bold tracking-tight leading-none text-foreground select-none max-w-4xl mx-auto">
-            Make Public Spending <br className="hidden md:inline" />
-            <span className="text-primary">Transparent with AI</span>
+          {/* Main Headline */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-white max-w-4xl mx-auto">
+            Make Public Spending <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+              Transparent with AI
+            </span>
           </h1>
 
-          <p className="text-[16px] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            SALAY transforms public spending logs, civic works registries, and citizen reports into queryable vector spaces using Snowflake Cortex. Fast, verifiable government audits.
+          {/* Subtitle */}
+          <p className="text-base sm:text-lg text-neutral-400 max-w-2xl mx-auto leading-relaxed font-normal">
+            SALAY turns dense government PDF contracts, public works ledgers, and municipal budgets into searchable intelligence powered by <strong className="text-neutral-200">Snowflake Cortex AI</strong>.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          {/* Call to Actions */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
-              to="/register"
-              className="px-6 py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-xl shadow-lg hover:shadow-primary/20 transition-all flex items-center space-x-2"
+              to="/dashboard"
+              className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/20 transition-all active:scale-95 flex items-center justify-center space-x-2"
             >
-              <span>Get Started & Register</span>
+              <span>Explore Live Dashboard</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <a
-              href="#architecture"
-              className="px-6 py-3.5 border border-border bg-card hover:bg-secondary text-foreground font-semibold text-xs rounded-xl transition-all"
+            <Link
+              to="/demo"
+              className="w-full sm:w-auto px-7 py-3.5 border border-neutral-800 bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 font-semibold text-xs rounded-xl transition-all flex items-center justify-center space-x-2"
             >
-              Learn More
-            </a>
+              <Terminal className="w-4 h-4 text-sky-400" />
+              <span>Launch 3-Min Judge Demo</span>
+            </Link>
           </div>
         </div>
 
-        {/* Floating Scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-muted-foreground animate-bounce flex flex-col items-center text-[10px] font-mono tracking-widest uppercase">
-          <span>Scroll to explore</span>
-          <span className="text-xs mt-1">↓</span>
+        {/* Floating App Preview Showcase */}
+        <div className="w-full max-w-4xl mx-auto relative z-10 -mb-16 hidden lg:block">
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-4 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80 px-2 text-xs text-neutral-400 font-mono">
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+                <span className="ml-2 font-bold text-neutral-200">salay-platform.snowflake.app</span>
+              </div>
+              <SnowflakeBadge variant="status" label="Cortex Llama-3-70B Active" size="sm" />
+            </div>
+            <div className="grid grid-cols-3 gap-3 pt-4 text-left">
+              <div className="p-3.5 bg-neutral-950/80 border border-neutral-800 rounded-xl">
+                <p className="text-[10px] text-neutral-500 font-mono uppercase">Audited Expenditure</p>
+                <p className="text-lg font-black text-sky-400">₱4,250,000,000</p>
+                <span className="text-[10px] text-emerald-400 flex items-center gap-1 mt-1">
+                  <TrendingUp className="w-3 h-3" /> 142 Contracts Synced
+                </span>
+              </div>
+              <div className="p-3.5 bg-neutral-950/80 border border-neutral-800 rounded-xl">
+                <p className="text-[10px] text-neutral-500 font-mono uppercase">Cortex Confidence</p>
+                <p className="text-lg font-black text-emerald-400">98.8%</p>
+                <span className="text-[10px] text-neutral-400 flex items-center gap-1 mt-1">
+                  <ShieldCheck className="w-3 h-3 text-sky-400" /> Vector Proof Verified
+                </span>
+              </div>
+              <div className="p-3.5 bg-neutral-950/80 border border-neutral-800 rounded-xl">
+                <p className="text-[10px] text-neutral-500 font-mono uppercase">CoCo CLI Agent</p>
+                <p className="text-lg font-black text-cyan-400">0ms Latency</p>
+                <span className="text-[10px] text-neutral-400 flex items-center gap-1 mt-1">
+                  <Activity className="w-3 h-3 text-cyan-400" /> Snowpark Stages Active
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 2. Interactive AI Preview Section */}
-      <section className="py-20 px-6 max-w-5xl mx-auto w-full text-center border-b border-border/60">
-        <div className="space-y-4 mb-12">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-primary font-mono">Ask SALAY</span>
-          <h2 className="text-[28px] font-bold text-foreground">Verifiable Cortex Search</h2>
-          <p className="text-[13px] text-muted-foreground max-w-md mx-auto">
-            Click one of the suggestions to see how Cortex structures query responses instantly.
+      {/* 2. Interactive Cortex AI Search Playground */}
+      <section className="py-24 px-6 max-w-6xl mx-auto w-full text-center border-b border-neutral-900">
+        <div className="space-y-3 mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-500/10 border border-sky-500/20 rounded-full text-xs font-mono font-bold text-sky-400 uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Interactive Cortex Playground</span>
+          </div>
+          <h2 className="text-3xl font-extrabold text-white">Natural Language Civic Queries</h2>
+          <p className="text-sm text-neutral-400 max-w-md mx-auto">
+            Click any query below to test how Snowflake Cortex AI extracts insights from contract PDFs.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch text-left">
-          {/* Sample input triggers */}
-          <div className="space-y-3 flex flex-col justify-center">
-            <div className="p-4 border border-border bg-card rounded-2xl flex items-center justify-between text-xs font-semibold text-foreground">
-              <span>Which infrastructure projects exceeded budget?</span>
-              <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="p-4 border border-border bg-card rounded-2xl flex items-center justify-between text-xs font-semibold text-foreground">
-              <span>Show delayed road projects in Ward 4.</span>
-              <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="p-4 border border-border bg-card rounded-2xl flex items-center justify-between text-xs font-semibold text-foreground">
-              <span>Summarize citizen complaints this month.</span>
-              <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch text-left">
+          {/* Left Column: Sample Trigger Buttons */}
+          <div className="lg:col-span-5 space-y-3 flex flex-col justify-center">
+            {demoQueries.map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedPrompt(idx)}
+                className={`p-4 border rounded-2xl transition-all text-left flex items-center justify-between group ${
+                  selectedPrompt === idx
+                    ? 'bg-neutral-900 border-sky-500 shadow-lg shadow-sky-500/10 text-white'
+                    : 'bg-neutral-950/60 border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                }`}
+              >
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-sky-400 uppercase font-bold">Query #{idx + 1}</span>
+                  <p className="text-xs font-semibold leading-snug">{item.q}</p>
+                </div>
+                <ChevronRight className={`w-4 h-4 transition-transform ${selectedPrompt === idx ? 'text-sky-400 translate-x-1' : 'text-neutral-600'}`} />
+              </button>
+            ))}
           </div>
 
-          {/* AI Response Card Identity */}
-          <div className="p-6 border border-primary/20 bg-card rounded-2xl shadow-sm space-y-4">
-            <div className="flex justify-between items-center pb-2 border-b border-border/40 text-[9px] text-muted-foreground font-mono">
-              <span className="flex items-center space-x-1 font-bold text-primary">
-                <span>✨</span> <span>AI Summary</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <span>🤖 Cortex Response</span>
-                <span>•</span>
-                <span className="text-emerald-500 font-bold">96% Conf.</span>
-              </span>
+          {/* Right Column: Dynamic AI Response Output Card */}
+          <div className="lg:col-span-7 p-6 border border-neutral-800 bg-neutral-900/90 rounded-2xl shadow-xl space-y-5 backdrop-blur-xl flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center pb-3 border-b border-neutral-800 text-xs font-mono">
+                <span className="flex items-center space-x-2 font-bold text-sky-400">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Snowflake Cortex AI Output</span>
+                </span>
+                <span className="flex items-center space-x-2 text-neutral-400">
+                  <span className="text-emerald-400 font-bold">{demoQueries[selectedPrompt].confidence} Confidence</span>
+                </span>
+              </div>
+
+              <div className="p-4 bg-neutral-950/80 border border-neutral-800/80 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                  <span>Project: <strong className="text-white">{demoQueries[selectedPrompt].project}</strong></span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    {demoQueries[selectedPrompt].status}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-200 leading-relaxed font-sans pt-1">
+                  {demoQueries[selectedPrompt].response}
+                </p>
+              </div>
+
+              {/* SQL Code Block Preview */}
+              <div className="p-3 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1 font-mono text-[11px]">
+                <div className="flex justify-between text-[10px] text-neutral-500 font-bold uppercase">
+                  <span>Generated Snowflake SQL</span>
+                  <span className="text-sky-400">Snowpark Engine</span>
+                </div>
+                <code className="text-cyan-300 block truncate">{demoQueries[selectedPrompt].sql}</code>
+              </div>
             </div>
-            <p className="text-xs text-foreground leading-relaxed">
-              Based on the **Municipal Budget Outlay Registry 2025**, the **Maple Street Bridge Safety Reconstruction** (PRJ-9904) has exceeded its current phase allocation by **₱350,000.00** due to safety reinforcement costs. Staged records sync reports 14 weeks delay.
-            </p>
-            <div className="flex justify-between text-[9px] text-muted-foreground font-mono pt-2 border-t border-border/40">
-              <span>Model: Llama-3-70b</span>
-              <span>Sync status: Live</span>
+
+            <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-3 border-t border-neutral-800">
+              <span>Model: Cortex Llama-3-70B</span>
+              <span className="text-emerald-400 font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> PDF Contract Proof Verified
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Snowflake Tech Architecture Section */}
-      <section id="architecture" className="py-20 px-6 max-w-5xl mx-auto w-full text-center border-b border-border/60">
-        <div className="space-y-4 mb-16">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-primary font-mono">Ingestion Pipeline</span>
-          <h2 className="text-[28px] font-bold text-foreground">Snowflake Ingestion Stack</h2>
-          <p className="text-[13px] text-muted-foreground max-w-md mx-auto">
-            From raw civic spreadsheets to semantic search layers.
+      {/* 3. Role-Based Stakeholder Value */}
+      <section className="py-24 px-6 max-w-6xl mx-auto w-full text-center border-b border-neutral-900">
+        <div className="space-y-3 mb-12">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Multi-Stakeholder Platform</span>
+          <h2 className="text-3xl font-extrabold text-white">Built For Citizens, Auditors & Officials</h2>
+          <p className="text-sm text-neutral-400 max-w-md mx-auto">
+            Switch between personas to see how SALAY empowers different roles in civic transparency.
+          </p>
+        </div>
+
+        {/* Persona Tabs */}
+        <div className="flex justify-center space-x-2 mb-8">
+          {(['citizen', 'auditor', 'official'] as const).map((persona) => (
+            <button
+              key={persona}
+              onClick={() => setActivePersona(persona)}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold capitalize transition-all ${
+                activePersona === persona
+                  ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20'
+                  : 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white'
+              }`}
+            >
+              {persona} Persona
+            </button>
+          ))}
+        </div>
+
+        {/* Persona Card Showcase */}
+        <div className="p-8 border border-neutral-800 bg-neutral-900/60 rounded-3xl text-left max-w-3xl mx-auto space-y-6 shadow-xl backdrop-blur-xl">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-2">{personas[activePersona].title}</h3>
+            <p className="text-xs text-neutral-300 leading-relaxed">{personas[activePersona].desc}</p>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            {personas[activePersona].highlights.map((item, idx) => (
+              <div key={idx} className="flex items-center space-x-3 text-xs text-neutral-200">
+                <div className="p-1 bg-sky-500/10 text-sky-400 rounded-lg border border-sky-500/20">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <span className="font-semibold">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-4 border-t border-neutral-800 flex justify-end">
+            <Link
+              to="/dashboard"
+              className="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center space-x-1"
+            >
+              <span>Explore Dashboard as {activePersona}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Snowflake Architecture Section */}
+      <section id="architecture" className="py-24 px-6 max-w-6xl mx-auto w-full text-center border-b border-neutral-900">
+        <div className="space-y-3 mb-16">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Technical Architecture</span>
+          <h2 className="text-3xl font-extrabold text-white">Snowflake CoCo & Cortex Pipeline</h2>
+          <p className="text-sm text-neutral-400 max-w-md mx-auto">
+            From raw PDF contract ingestion to zero-latency AI search outputs.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div className="p-6 border border-border bg-card rounded-2xl space-y-4">
-            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl w-fit text-primary">
-              <Layers className="w-5 h-5" />
+          <div className="p-6 border border-neutral-800 bg-neutral-900/60 rounded-2xl space-y-4 hover:border-sky-500/40 transition-all group">
+            <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl w-fit text-sky-400 group-hover:scale-110 transition-transform">
+              <Layers className="w-6 h-6" />
             </div>
-            <h3 className="text-[20px] font-bold text-foreground">1. CoCo CLI</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Automated command scripts copy municipal records files securely to secure Snowflake stages.
+            <h3 className="text-lg font-bold text-white">1. CoCo CLI Agent</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Automated CLI command scripts copy municipal records files securely to Snowflake stages via `/api/v1/cli/execute`.
             </p>
           </div>
 
-          <div className="p-6 border border-border bg-card rounded-2xl space-y-4">
-            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl w-fit text-primary">
-              <Database className="w-5 h-5" />
+          <div className="p-6 border border-neutral-800 bg-neutral-900/60 rounded-2xl space-y-4 hover:border-sky-500/40 transition-all group">
+            <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl w-fit text-sky-400 group-hover:scale-110 transition-transform">
+              <Database className="w-6 h-6" />
             </div>
-            <h3 className="text-[20px] font-bold text-foreground">2. Snowpark Stages</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Raw budgets CSV registries are transformed dynamically and parsed into secure, structured schemas.
+            <h3 className="text-lg font-bold text-white">2. Snowpark Stages</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Raw contract text buffers are parsed into structured database tables inside `CIVIC_TRANSPARENCY_DB`.
             </p>
           </div>
 
-          <div className="p-6 border border-border bg-card rounded-2xl space-y-4">
-            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl w-fit text-primary">
-              <Cpu className="w-5 h-5" />
+          <div className="p-6 border border-neutral-800 bg-neutral-900/60 rounded-2xl space-y-4 hover:border-sky-500/40 transition-all group">
+            <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl w-fit text-sky-400 group-hover:scale-110 transition-transform">
+              <Cpu className="w-6 h-6" />
             </div>
-            <h3 className="text-[20px] font-bold text-foreground">3. Cortex AI</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Snowflake Cortex LLM maps natural queries directly to vector spaces with zero external model loops.
+            <h3 className="text-lg font-bold text-white">3. Cortex AI Search</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Snowflake Cortex LLM executes natural language queries with sub-millisecond response caching.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Testimonials (Fictional Municipality) */}
-      <section className="py-20 px-6 max-w-5xl mx-auto w-full text-center border-b border-border/60">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <p className="text-base md:text-xl text-foreground font-semibold italic leading-relaxed">
-            "By deploying SALAY at the Auditor General Office, we compressed our municipal works timeline delay reviews from 12 days to 30 seconds. Snowflake Cortex verifies lead contractors timelines lag instantly."
-          </p>
-          <div className="space-y-1">
-            <h4 className="text-xs font-bold text-foreground">Maria Santos</h4>
-            <span className="text-[10px] text-muted-foreground uppercase font-mono">Lead Auditor, Municipality of Salay</span>
           </div>
         </div>
       </section>
 
       {/* 5. FAQs Accordion */}
-      <section className="py-20 px-6 max-w-3xl mx-auto w-full text-left">
-        <h2 className="text-[28px] font-bold text-foreground text-center mb-12">Frequently Asked Questions</h2>
+      <section id="faq" className="py-24 px-6 max-w-4xl mx-auto w-full text-left">
+        <h2 className="text-3xl font-extrabold text-white text-center mb-12">Frequently Asked Questions</h2>
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
             <div 
               key={idx}
-              className="border border-border bg-card rounded-2xl overflow-hidden"
+              className="border border-neutral-800 bg-neutral-900/60 rounded-2xl overflow-hidden backdrop-blur-sm"
             >
               <button
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                className="w-full px-6 py-4 flex justify-between items-center text-xs font-semibold text-foreground hover:bg-secondary/40 transition-colors text-left"
+                className="w-full px-6 py-4 flex justify-between items-center text-xs font-semibold text-white hover:bg-neutral-800/50 transition-colors text-left"
               >
                 <span>{faq.q}</span>
-                <span className="text-muted-foreground">{activeFaq === idx ? '−' : '+'}</span>
+                <span className="text-sky-400 font-bold text-sm">{activeFaq === idx ? '−' : '+'}</span>
               </button>
               {activeFaq === idx && (
-                <div className="px-6 pb-4 pt-1 text-xs text-muted-foreground leading-relaxed border-t border-border/40">
+                <div className="px-6 pb-4 pt-1 text-xs text-neutral-400 leading-relaxed border-t border-neutral-800/80">
                   {faq.a}
                 </div>
               )}
@@ -208,21 +389,21 @@ export const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Footer (Notion style) */}
-      <footer className="py-12 px-6 border-t border-border bg-card text-xs text-muted-foreground select-none">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center space-x-2">
-            <img src="/logo.png" alt="SALAY Logo" className="w-5 h-5 object-contain" />
-            <span className="font-bold text-foreground tracking-tight">SALAY Transparency Engine</span>
+      {/* 6. Premium Footer */}
+      <footer className="py-12 px-6 border-t border-neutral-900 bg-neutral-950 text-xs text-neutral-500 select-none">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center space-x-2.5">
+            <img src="/logo.png" alt="SALAY Logo" className="w-6 h-6 object-contain" />
+            <span className="font-extrabold text-white tracking-tight">SALAY Transparency Engine</span>
           </div>
-          <div className="flex space-x-6 text-[11px] font-medium">
-            <Link to="/demo" className="hover:text-foreground">Demo Center</Link>
-            <a href="#architecture" className="hover:text-foreground">Architecture</a>
-            <span className="hover:text-foreground">FastAPI</span>
-            <span className="hover:text-foreground font-mono text-[10px] text-emerald-500">Live Stages</span>
+          <div className="flex space-x-6 text-[11px] font-medium text-neutral-400">
+            <Link to="/demo" className="hover:text-white transition-colors">Demo Center</Link>
+            <a href="#architecture" className="hover:text-white transition-colors">Architecture</a>
+            <Link to="/coco-agent" className="text-sky-400 hover:underline">CoCo Agent CLI</Link>
+            <span className="font-mono text-[10px] text-emerald-400">Snowflake Online</span>
           </div>
-          <p className="text-[10px] font-mono">
-            © 2026 SALAY. Snowflake Hackathon MVP.
+          <p className="text-[10px] font-mono text-neutral-600">
+            © 2026 SALAY. Snowflake Hackathon Submission.
           </p>
         </div>
       </footer>
