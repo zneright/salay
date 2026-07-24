@@ -55,12 +55,12 @@ export const Login: React.FC = () => {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Email Address</label>
+          <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 dark:text-neutral-400">Email Address</label>
           <input
             type="text"
             {...register('email')}
             placeholder="name@organization.org"
-            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white outline-none focus:border-sky-500 placeholder-neutral-400"
           />
           {errors.email && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -72,8 +72,8 @@ export const Login: React.FC = () => {
         {/* Password */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Password</label>
-            <Link to="/forgot-password" className="text-[9px] text-muted-foreground hover:text-foreground">
+            <label className="text-[9px] uppercase font-bold tracking-wider text-neutral-600 dark:text-neutral-400">Password</label>
+            <Link to="/forgot-password" className="text-[9px] text-neutral-500 hover:text-sky-500">
               Forgot Password?
             </Link>
           </div>
@@ -81,7 +81,7 @@ export const Login: React.FC = () => {
             type="password"
             {...register('password')}
             placeholder="••••••••"
-            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white outline-none focus:border-sky-500 placeholder-neutral-400"
           />
           {errors.password && (
             <span className="text-[10px] text-rose-500 flex items-center space-x-1">
@@ -96,9 +96,9 @@ export const Login: React.FC = () => {
             type="checkbox"
             id="remember_me"
             {...register('remember_me')}
-            className="rounded border-border bg-secondary text-primary w-3.5 h-3.5 focus:ring-0 outline-none"
+            className="rounded border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 text-sky-500 w-3.5 h-3.5 focus:ring-0 outline-none"
           />
-          <label htmlFor="remember_me" className="text-[10px] text-muted-foreground select-none cursor-pointer">
+          <label htmlFor="remember_me" className="text-[10px] text-neutral-600 dark:text-neutral-400 select-none cursor-pointer">
             Remember my session
           </label>
         </div>
@@ -106,7 +106,7 @@ export const Login: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-2 bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98]"
+          className="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98] shadow-md"
         >
           {isSubmitting ? 'Verifying...' : 'Sign In'}
           {!isSubmitting && <ArrowRight className="w-3.5 h-3.5" />}

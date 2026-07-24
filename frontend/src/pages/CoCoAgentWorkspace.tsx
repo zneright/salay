@@ -40,7 +40,7 @@ export const CoCoAgentWorkspace: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 sm:p-6 space-y-8 max-w-7xl mx-auto w-full overflow-x-hidden">
       
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
