@@ -142,7 +142,7 @@ export const Landing: React.FC = () => {
           {/* Call to Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <button
-              onClick={() => handleLaunchDemo('Auditor')}
+              onClick={() => navigate('/demo')}
               className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-500 dark:via-teal-500 dark:to-cyan-500 hover:opacity-90 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition-all active:scale-95 flex items-center justify-center space-x-2.5"
             >
               <Zap className="w-4 h-4 fill-white" />
@@ -150,11 +150,11 @@ export const Landing: React.FC = () => {
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              onClick={() => handleLaunchDemo('Government Official')}
+              onClick={() => navigate('/demo')}
               className="w-full sm:w-auto px-7 py-3.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/90 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-all flex items-center justify-center space-x-2"
             >
               <Play className="w-3.5 h-3.5 text-sky-500 fill-sky-500" />
-              <span>Launch Official Persona</span>
+              <span>Choose Demo Persona</span>
             </button>
           </div>
 

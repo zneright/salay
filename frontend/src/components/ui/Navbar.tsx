@@ -4,7 +4,7 @@ import { Sun, Moon, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 
 export const Navbar: React.FC = () => {
-  const { user, logout, loginAsDemo } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
@@ -73,63 +73,14 @@ export const Navbar: React.FC = () => {
 
         {/* Action Triggers */}
         <div className="flex items-center space-x-3">
-          {/* Instant Judge Demo Role Launcher Dropdown */}
-          <div className="relative group">
-            <button
-              className="text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-3.5 py-2 rounded-xl transition-all active:scale-95 flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
-              title="Launch Instant Demo - No Registration Required"
-            >
-              <span>⚡ Try Live Demo (No Sign-Up)</span>
-            </button>
-            <div className="absolute right-0 mt-1 w-56 rounded-xl bg-neutral-900 border border-neutral-800 shadow-2xl p-2 hidden group-hover:block z-50 text-xs space-y-1 backdrop-blur-xl">
-              <div className="px-3 py-1.5 border-b border-neutral-800 text-[10px] font-mono text-neutral-400 font-bold uppercase">
-                Select Judge Role (Instant Access)
-              </div>
-              <button
-                onClick={() => {
-                  loginAsDemo('Administrator');
-                  navigate('/dashboard');
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 text-neutral-200 hover:text-amber-400 font-medium flex items-center justify-between"
-              >
-                <span>⚡ Administrator Persona</span>
-                <span className="text-[10px] text-amber-400 font-mono font-bold">Admin Control</span>
-              </button>
-              <button
-                onClick={() => {
-                  loginAsDemo('Auditor');
-                  navigate('/dashboard');
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 text-neutral-200 hover:text-emerald-400 font-medium flex items-center justify-between"
-              >
-                <span>🕵️ Auditor Persona</span>
-                <span className="text-[10px] text-emerald-400 font-mono">Full Access</span>
-              </button>
-              <button
-                onClick={() => {
-                  loginAsDemo('Government Official');
-                  navigate('/dashboard');
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 text-neutral-200 hover:text-sky-400 font-medium flex items-center justify-between"
-              >
-                <span>🏛️ Official Persona</span>
-                <span className="text-[10px] text-sky-400 font-mono font-bold">Budgets</span>
-              </button>
-              <button
-                onClick={() => {
-                  loginAsDemo('Citizen');
-                  navigate('/dashboard');
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 text-neutral-200 hover:text-cyan-400 font-medium flex items-center justify-between"
-              >
-                <span>👤 Citizen Persona</span>
-                <span className="text-[10px] text-cyan-400 font-mono">Public</span>
-              </button>
-              <div className="px-3 py-1 text-[9px] text-neutral-500 font-mono pt-1 border-t border-neutral-800">
-                🔒 Ephemeral Sandbox (Data not saved)
-              </div>
-            </div>
-          </div>
+          {/* Instant Demo Role Launcher Page Trigger */}
+          <button
+            onClick={() => navigate('/demo')}
+            className="text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-3.5 py-2 rounded-xl transition-all active:scale-95 flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
+            title="Choose Live Demo Persona - No Registration Required"
+          >
+            <span>⚡ Try Live Demo (No Sign-Up)</span>
+          </button>
 
           <button
             onClick={toggleTheme}
