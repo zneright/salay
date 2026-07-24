@@ -49,7 +49,7 @@ SALAY uses a highly decoupled Clean Architecture designed for enterprise scalabi
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/salay.git
+git clone https://github.com/zneright/salay.git
 cd salay
 ```
 
