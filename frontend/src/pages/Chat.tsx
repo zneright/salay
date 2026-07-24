@@ -2,13 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Cpu, 
   Sparkles, 
-  MessageSquare, 
-  ArrowRight, 
   User, 
   Send,
-  Database
+  Code,
+  Filter,
+  FileText,
+  Volume2,
+  VolumeX,
+  Download,
+  Plus,
+  Trash2,
+  ExternalLink,
+  Bot,
+  Copy,
+  Check,
+  PanelLeftOpen,
+  PanelLeftClose
 } from 'lucide-react';
-import { showToast } from '../components/ui/Toast';
+import { SnowflakeBadge } from '../components/ui/SnowflakeBadge';
+import { DocumentProofModal } from '../components/ui/DocumentProofModal';
+import { sendAIChatQuery, fetchAIModels, CortexModelInfo, AIChatMessageTurn } from '../services/api';
+import { getProjectTitleForDoc } from '../utils/documentCatalog';
 
 interface Message {
   id: string;
@@ -18,62 +32,283 @@ interface Message {
   sourceBadge?: string;
   datasetUsed?: string;
   confidence?: number;
+  sqlPreview?: string;
+  pdfAttachmentName?: string;
+  pdfSnippet?: string;
   followUps?: string[];
 }
 
+interface ChatSession {
+  id: string;
+  title: string;
+  createdAt: string;
+  messages: Message[];
+}
+
+const FormattedMessageText: React.FC<{ text: string }> = ({ text }) => {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+
+  return (
+    <div className="space-y-1.5 leading-relaxed text-xs sm:text-sm text-neutral-800 dark:text-neutral-200">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-1" />;
+
+        const renderFormatted = (str: string) => {
+          const parts = str.split(/(\*\*.*?\*\*|`.*?`)/g);
+          return parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+              return (
+                <strong key={pIdx} className="font-bold text-neutral-900 dark:text-white">
+                  {part.slice(2, -2)}
+                </strong>
+              );
+            }
+            if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+              return (
+                <code key={pIdx} className="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono text-[11px] font-medium">
+                  {part.slice(1, -1)}
+                </code>
+              );
+            }
+            return part;
+          });
+        };
+
+        if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+          const content = trimmed.replace(/^[•-]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0 mt-1.5" />
+              <div className="flex-1">{renderFormatted(content)}</div>
+            </div>
+          );
+        }
+
+        if (trimmed.startsWith('📄') || trimmed.startsWith('⚠️') || trimmed.startsWith('💡')) {
+          return (
+            <div key={idx} className="font-semibold text-neutral-900 dark:text-white pt-1 pb-0.5">
+              {renderFormatted(trimmed)}
+            </div>
+          );
+        }
+
+        return <p key={idx}>{renderFormatted(line)}</p>;
+      })}
+    </div>
+  );
+};
+
+
 export const Chat: React.FC = () => {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedDataset, setSelectedDataset] = useState('All Datasets (Snowflake Hybrid)');
+  const [selectedModel, setSelectedModel] = useState('llama3-70b');
+  const [availableModels, setAvailableModels] = useState<CortexModelInfo[]>([
+    {
+      id: 'llama3-70b',
+      name: 'Cortex Llama 3 70B',
+      provider: 'Meta / Snowflake Cortex',
+      description: 'Optimized for civic data reasoning & audit analytics',
+      badge: 'Recommended'
+    },
+    {
+      id: 'llama3.1-405b',
+      name: 'Cortex Llama 3.1 405B',
+      provider: 'Meta / Snowflake Cortex',
+      description: 'Frontier AI model for deep technical verification',
+      badge: 'Frontier AI'
+    },
+    {
+      id: 'mistral-large',
+      name: 'Cortex Mistral Large',
+      provider: 'Mistral AI / Snowflake Cortex',
+      description: 'Multilingual contract & technical audit evaluation',
+      badge: 'Enterprise'
+    }
+  ]);
+
+  // Session State - Lazy Initializer from localStorage
+  const [sessions, setSessions] = useState<ChatSession[]>(() => {
+    try {
+      const saved = localStorage.getItem('salay_chat_sessions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse saved chat sessions:', e);
+    }
+    return [
+      {
+        id: 'sess-default',
+        title: 'Infrastructure & Budget Analysis',
+        createdAt: new Date().toLocaleDateString(),
+        messages: [
+          {
+            id: 'welcome-msg',
+            sender: 'ai',
+            text: 'Welcome to **SALAY AI Analyst Workspace** powered by **Snowflake Cortex AI (`llama3-70b`)**. Ask questions about infrastructure budgets, public works progress, citizen reports, or search through attached PDF audit document proofs.',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sourceBadge: 'Cortex AI (llama3-70b)',
+            datasetUsed: 'Snowflake Hybrid DB & Cortex Search PDF Stage',
+            confidence: 0.99,
+            followUps: [
+              'Inspect Davao Tunnel technical audit document.',
+              'Which infrastructure projects exceeded budget?',
+              'Summarize citizen complaints.'
+            ]
+          }
+        ]
+      }
+    ];
+  });
+
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
+    return sessions[0]?.id || 'sess-default';
+  });
+
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  // Modal & Auxiliary state
+  const [inspectDoc, setInspectDoc] = useState<string | null>(null);
+  const [inspectSnippet, setInspectSnippet] = useState<string | undefined>(undefined);
   const [isTyping, setIsTyping] = useState(false);
+  const [showSqlId, setShowSqlId] = useState<string | null>(null);
+  const [copiedSqlId, setCopiedSqlId] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const suggestedQuestions = [
-    'Which infrastructure projects exceeded budget?',
-    'Show delayed road projects.',
-    'Summarize citizen complaints.',
-    'Which barangays received the largest funding?',
-    'Show projects completed this year.'
+  // Active session helper
+  const activeSession = sessions.find((s) => s.id === activeSessionId) || sessions[0];
+
+  const datasets = [
+    'All Datasets (Snowflake Hybrid)',
+    'Public Works Projects DB',
+    'Municipal Budgets Registry',
+    'Citizen Incident Reports',
+    'Attached PDF Proof Documents (Cortex Search Stage)'
   ];
 
-  const mockReplies: Record<string, string> = {
-    'Which infrastructure projects exceeded budget?': 
-      'Based on the **Municipal Budget Outlay Registry 2025**, the **Maple Street Bridge Safety Reconstruction** (PRJ-9904) has exceeded its current phase allocation by **₱350,000.00** due to safety reinforcement costs. Total spent is **₱4.8M** against a ₱4.5M phase cap.',
-    'Show delayed road projects.': 
-      'Currently, **1 road infrastructure project** is marked as Delayed:\n\n• **Maple Street Bridge Safety Reconstruction** (PRJ-9904)\n  * Location: East Ward District\n  * Timeline: Sep 2024 - Dec 2026 (14 weeks behind schedule)\n  * Progress: 42%',
-    'Summarize citizen complaints.': 
-      'Our analysis of the **Citizen Feedback dataset** shows **43 reports** in the last month. Sentiment breakdown is **68% Negative** (primarily regarding flooded roads and drainage blocks) and **32% Neutral/Positive** (pothole repairs feedback).\n\nKey hotspot: **Ward 4 (North Metro)** reports the highest complaint density.',
-    'Which barangays received the largest funding?': 
-      'The largest municipal departments funding allocation went to **Ward 4 (North Metro)** with **₱12.5M** allocated for high school solar installations, followed by the **Downtown Core** with **₱3.4M** for bus lane transit expansions.',
-    'Show projects completed this year.': 
-      'Completed projects registry: \n\n• **Metro Transit Line-C Bus Lane Expansion** (PRJ-1024)\n  * Budget: ₱3,400,000.00\n  * Completed: June 2025\n  * Scope: Downtown Transit Core'
-  };
+  const suggestedQuestions = [
+    'Inspect Davao Tunnel technical audit document.',
+    'Which infrastructure projects exceeded budget?',
+    'Search safety inspection findings in Maple_Bridge_Report.pdf',
+    'Extract contract budget cap from Oakridge_Solar_Technical_Audit_Proof.pdf',
+    'Show delayed road projects.'
+  ];
 
-  const followUpsMap: Record<string, string[]> = {
-    'Which infrastructure projects exceeded budget?': [
-      'Show delayed road projects.',
-      'Summarize citizen complaints.'
-    ],
-    'Show delayed road projects.': [
-      'Which infrastructure projects exceeded budget?',
-      'Show projects completed this year.'
-    ],
-    'Summarize citizen complaints.': [
-      'Which barangays received the largest funding?',
-      'Show delayed road projects.'
-    ],
-    'Which barangays received the largest funding?': [
-      'Which infrastructure projects exceeded budget?',
-      'Show projects completed this year.'
-    ],
-    'Show projects completed this year.': [
-      'Show delayed road projects.',
-      'Summarize citizen complaints.'
-    ]
-  };
+  // Save sessions to localStorage whenever state mutates
+  useEffect(() => {
+    try {
+      localStorage.setItem('salay_chat_sessions', JSON.stringify(sessions));
+    } catch (e) {
+      console.warn('Failed to persist chat sessions:', e);
+    }
+  }, [sessions]);
+
+  useEffect(() => {
+    fetchAIModels().then((res) => {
+      if (res.models && res.models.length > 0) {
+        setAvailableModels(res.models);
+      }
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+  }, [activeSession?.messages, isTyping]);
+
+  // Handle Speech Synthesis
+  const toggleSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      } else {
+        const cleanText = text.replace(/[*_#•`-]/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+        setIsSpeaking(true);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  };
+
+  const handleCreateNewSession = () => {
+    const newId = `sess-${Date.now()}`;
+    const newSession: ChatSession = {
+      id: newId,
+      title: `Audit Query ${sessions.length + 1}`,
+      createdAt: new Date().toLocaleDateString(),
+      messages: [
+        {
+          id: Math.random().toString(),
+          sender: 'ai',
+          text: `New conversation started with **${selectedModel}**. How can I assist with your civic audit analysis?`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          sourceBadge: `Cortex AI (${selectedModel})`,
+          datasetUsed: selectedDataset,
+          confidence: 0.99,
+          followUps: suggestedQuestions.slice(0, 3)
+        }
+      ]
+    };
+    setSessions((prev) => [newSession, ...prev]);
+    setActiveSessionId(newId);
+  };
+
+  const handleDeleteSession = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (sessions.length === 1) return;
+    setSessions((prev) => prev.filter((s) => s.id !== id));
+    if (activeSessionId === id) {
+      const remaining = sessions.filter((s) => s.id !== id);
+      setActiveSessionId(remaining[0].id);
+    }
+  };
+
+  const handleCopySql = (sql: string, id: string) => {
+    navigator.clipboard.writeText(sql);
+    setCopiedSqlId(id);
+    setTimeout(() => setCopiedSqlId(null), 2000);
+  };
+
+  const handleExportReport = () => {
+    const lines = [
+      `# SALAY AI Civic Transparency Audit Report`,
+      `Session ID: ${activeSession.id}`,
+      `Date: ${new Date().toLocaleString()}`,
+      `Model Used: ${selectedModel}`,
+      `Scope: ${selectedDataset}`,
+      `--------------------------------------------------\n`
+    ];
+
+    activeSession.messages.forEach((m) => {
+      lines.push(`[${m.timestamp}] ${m.sender.toUpperCase()}:`);
+      lines.push(`${m.text}\n`);
+      if (m.pdfAttachmentName) {
+        lines.push(`📄 Referenced Proof: ${m.pdfAttachmentName}`);
+      }
+      if (m.sqlPreview) {
+        lines.push(`\`\`\`sql\n${m.sqlPreview}\n\`\`\``);
+      }
+      lines.push(`\n--------------------------------------------------\n`);
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SALAY_Audit_Report_${activeSession.id}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
@@ -81,215 +316,436 @@ export const Chat: React.FC = () => {
     const userMessage: Message = {
       id: Math.random().toString(),
       sender: 'user',
-      text: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      text: text.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Append to current session
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id === activeSessionId) {
+          // Update title if default title
+          const firstUserMsg = s.messages.find((m) => m.sender === 'user');
+          const title = firstUserMsg ? s.title : text.trim().slice(0, 24) + '...';
+          return {
+            ...s,
+            title,
+            messages: [...s.messages, userMessage],
+          };
+        }
+        return s;
+      })
+    );
+
     setInput('');
     setIsTyping(true);
 
-    // Simulate Snowflake Cortex latency
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    let aiReply = "I'm sorry, I couldn't search that query in our local mock database. Try selecting one of the suggested questions above to check Snowflake Cortex integrations.";
-    
-    // Find closest match or exact suggested question key
-    const matchKey = Object.keys(mockReplies).find(
-      k => text.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(text.toLowerCase())
-    );
-
-    if (matchKey) {
-      aiReply = mockReplies[matchKey];
+    // 1. Shared Query Context Cache Check
+    const cacheKey = `${selectedDataset}_${text.trim().toLowerCase()}`;
+    const rawCache = localStorage.getItem('salay_context_cache');
+    let contextCache: Record<string, any> = {};
+    if (rawCache) {
+      try { contextCache = JSON.parse(rawCache); } catch (e) {}
     }
 
-    const followUps = matchKey ? followUpsMap[matchKey] : undefined;
-    const datasetName = matchKey 
-      ? (matchKey.includes('complaint') ? 'citizen_feedback_2026.csv' : 'municipal_budgets_2025.csv')
-      : 'snowflake_metadata_catalog';
+    if (contextCache[cacheKey]) {
+      const cached = contextCache[cacheKey];
+      const aiMessage: Message = {
+        id: Math.random().toString(),
+        sender: 'ai',
+        text: cached.text,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sourceBadge: `${cached.sourceBadge || selectedModel} (Shared Context Cache)`,
+        datasetUsed: selectedDataset,
+        confidence: cached.confidence || 0.99,
+        sqlPreview: cached.sqlPreview,
+        pdfAttachmentName: cached.pdfAttachmentName,
+        pdfSnippet: cached.pdfSnippet,
+        followUps: cached.followUps,
+      };
 
-    const aiMessage: Message = {
-      id: Math.random().toString(),
-      sender: 'ai',
-      text: aiReply,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      sourceBadge: 'Cortex Llama-3-70b',
-      datasetUsed: datasetName,
-      confidence: 96,
-      followUps: followUps
-    };
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === activeSessionId ? { ...s, messages: [...s.messages, aiMessage] } : s
+        )
+      );
+      setIsTyping(false);
 
-    setMessages((prev) => [...prev, aiMessage]);
-    setIsTyping(false);
-    showToast('Cortex AI response compiled', 'success');
+      if (cached.pdfAttachmentName && text.toLowerCase().includes('inspect')) {
+        setInspectDoc(cached.pdfAttachmentName);
+        setInspectSnippet(cached.pdfSnippet);
+      }
+      return;
+    }
+
+    // Build history
+    const historyPayload: AIChatMessageTurn[] = activeSession.messages.map((m) => ({
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.text,
+    }));
+
+    try {
+      const res = await sendAIChatQuery(
+        text.trim(),
+        activeSessionId,
+        historyPayload,
+        selectedModel,
+        selectedDataset
+      );
+
+      const aiMessage: Message = {
+        id: Math.random().toString(),
+        sender: 'ai',
+        text: res.response,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sourceBadge: `Cortex AI (${res.model_used || selectedModel})`,
+        datasetUsed: selectedDataset,
+        confidence: res.confidence_score || 0.96,
+        sqlPreview: res.generated_sql || `SELECT * FROM CIVIC_TRANSPARENCY_DB.PUBLIC.PROJECTS;`,
+        pdfAttachmentName: res.pdf_attachment_name || undefined,
+        pdfSnippet: res.pdf_snippet || undefined,
+        followUps: res.suggested_followups || suggestedQuestions.slice(0, 3),
+      };
+
+      // Store in Shared Query Context Cache
+      contextCache[cacheKey] = {
+        text: res.response,
+        sourceBadge: res.model_used || selectedModel,
+        sqlPreview: res.generated_sql,
+        confidence: res.confidence_score || 0.96,
+        pdfAttachmentName: res.pdf_attachment_name || undefined,
+        pdfSnippet: res.pdf_snippet || undefined,
+        followUps: res.suggested_followups,
+      };
+      try {
+        localStorage.setItem('salay_context_cache', JSON.stringify(contextCache));
+      } catch (e) {}
+
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === activeSessionId ? { ...s, messages: [...s.messages, aiMessage] } : s
+        )
+      );
+
+      // Auto-open PDF modal if directly requested
+      if (res.pdf_attachment_name && text.toLowerCase().includes('inspect')) {
+        setInspectDoc(res.pdf_attachment_name);
+        setInspectSnippet(res.pdf_snippet);
+      }
+    } catch (err) {
+      const errorMessage: Message = {
+        id: Math.random().toString(),
+        sender: 'ai',
+        text: 'Error querying Snowflake Cortex AI. Please check server connection.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sourceBadge: 'Cortex AI (Error)',
+      };
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === activeSessionId ? { ...s, messages: [...s.messages, errorMessage] } : s
+        )
+      );
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
-    <div className="h-[78vh] flex flex-col justify-between border border-border bg-card/25 rounded-2xl overflow-hidden relative text-left">
-      {/* Background grid line marker */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
-
-      {/* Chat header panel */}
-      <div className="px-6 py-4 border-b border-border bg-card/85 flex items-center justify-between z-10 shrink-0">
-        <div className="flex items-center space-x-2.5">
-          <Cpu className="w-5 h-5 text-primary animate-pulse" />
-          <div>
-            <h3 className="text-base font-bold text-foreground">Ask SALAY</h3>
-            <p className="text-[11px] text-muted-foreground">Verify public budgets, timelines, and feedback using Snowflake Cortex.</p>
+    <div className="flex h-[calc(100vh-120px)] max-w-7xl mx-auto gap-4 animate-fade-in text-left">
+      
+      {/* Sessions History Drawer */}
+      {showDrawer && (
+        <div className="w-64 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 shadow-sm shrink-0 space-y-3">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+              <Bot className="w-3.5 h-3.5 text-sky-500" />
+              Saved Sessions
+            </h3>
+            <button
+              onClick={handleCreateNewSession}
+              className="p-1.5 rounded-lg bg-sky-500/10 text-sky-500 hover:bg-sky-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1"
+              title="New Chat Session"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </div>
-        <div className="flex items-center space-x-2 text-[10px] text-muted-foreground font-mono bg-secondary px-2.5 py-0.5 rounded border border-border">
-          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-          <span>Snowflake Cortex</span>
-        </div>
-      </div>
 
-      {/* Messages body or Suggested Questions empty state */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 z-10">
-        {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center space-y-6 text-center max-w-lg mx-auto">
-            <div className="p-5 bg-card border border-border rounded-2xl text-foreground shadow-sm">
-              <MessageSquare className="w-8 h-8 text-primary mx-auto mb-2.5" />
-              <h4 className="text-sm font-bold text-foreground">Civic Intelligent Search Engine</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                This engine uses **Snowflake Cortex LLMs** to compile budgets, projects progress pipelines, and public feedback datasets. All audits are grounded strictly in municipality CSV tables.
-              </p>
-            </div>
-
-            {/* Clickable suggested questions */}
-            <div className="space-y-2.5 w-full text-left">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block px-1">Suggested Inquiries</span>
-              <div className="grid grid-cols-1 gap-2">
-                {suggestedQuestions.map((q, idx) => (
+          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+            {sessions.map((s) => (
+              <div
+                key={s.id}
+                onClick={() => setActiveSessionId(s.id)}
+                className={`group flex items-center justify-between p-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                  s.id === activeSessionId
+                    ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                }`}
+              >
+                <div className="truncate pr-2">
+                  <p className="truncate font-semibold">{s.title}</p>
+                  <p className="text-[10px] text-neutral-400">{s.createdAt}</p>
+                </div>
+                {sessions.length > 1 && (
                   <button
-                    key={idx}
-                    onClick={() => handleSend(q)}
-                    className="p-3 border border-border bg-card hover:bg-secondary rounded-xl text-left text-xs text-muted-foreground hover:text-foreground transition-all duration-250 flex items-center justify-between group active:scale-[0.99]"
+                    onClick={(e) => handleDeleteSession(s.id, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-neutral-400 hover:text-rose-500 transition-all"
                   >
-                    <span>{q}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground shrink-0 ml-2 transition-colors" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                ))}
+                )}
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main Workspace Area */}
+      <div className="flex-1 flex flex-col space-y-3 min-w-0">
+        
+        {/* 1. Header Toolbar & Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowDrawer(!showDrawer)}
+              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-sky-500 transition-all"
+              title="Toggle Sessions Drawer"
+            >
+              {showDrawer ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+            </button>
+
+            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-500 border border-sky-500/20">
+              <Cpu className="w-5 h-5" />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base font-bold text-neutral-900 dark:text-white">Cortex AI Analyst & PDF Search</h1>
+                <SnowflakeBadge variant="cortex" label={selectedModel} />
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+                  ⚡ Free-Tier Token Saver Active
+                </span>
+              </div>
+              <p className="text-xs text-neutral-500 truncate max-w-md">Lightweight grounded search across live Snowflake tables & PDF audit proofs</p>
             </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((m) => {
-              const isUser = m.sender === 'user';
-              return (
-                <div key={m.id} className={`flex items-start gap-3 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse text-right' : 'mr-auto'}`}>
-                  {/* Avatar bubble */}
-                  <div className={`p-2 rounded-full border border-border shrink-0 ${isUser ? 'bg-secondary text-foreground' : 'bg-secondary text-primary'}`}>
-                    {isUser ? <User className="w-3.5 h-3.5" /> : <Cpu className="w-3.5 h-3.5" />}
-                  </div>
 
-                  {/* Bubble text */}
-                  <div className="space-y-1">
-                    <div className={`p-4.5 rounded-2xl text-[13px] leading-relaxed text-left whitespace-pre-line border ${
-                      isUser 
-                        ? 'bg-secondary border-border text-foreground' 
-                        : 'bg-card border-primary/20 text-foreground shadow-sm'
-                    }`}>
-                      {!isUser && (
-                        <div className="flex items-center justify-between mb-3 pb-1.5 border-b border-border/40 text-[9px] text-muted-foreground font-mono select-none">
-                          <span className="flex items-center space-x-1 font-bold text-primary">
-                            <span>✨</span> <span>AI Summary</span>
-                          </span>
-                          <span className="flex items-center space-x-2">
-                            <span>🤖 Cortex Response</span>
-                            <span>•</span>
-                            <span className="text-emerald-500 font-bold">{m.confidence}% Confidence</span>
-                          </span>
-                        </div>
-                      )}
-                      {m.text}
+          {/* Model & Dataset Selectors */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Model Selector */}
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 focus:outline-none cursor-pointer"
+            >
+              {availableModels.map((m) => (
+                <option key={m.id} value={m.id} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                  {m.name} {m.badge ? `(${m.badge})` : ''}
+                </option>
+              ))}
+            </select>
 
-                      {/* Suggested Followups chips */}
-                      {!isUser && m.followUps && m.followUps.length > 0 && (
-                        <div className="mt-4 pt-3 border-t border-border/40 space-y-2 select-none text-[11px]">
-                          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block">Suggested Follow-ups</span>
-                          <div className="flex flex-wrap gap-2">
-                            {m.followUps.map((f, fIdx) => (
-                              <button
-                                key={fIdx}
-                                onClick={() => handleSend(f)}
-                                className="px-3 py-1 bg-secondary hover:bg-muted border border-border rounded-full text-[10px] font-bold text-primary transition-all active:scale-[0.98]"
-                              >
-                                {f}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Source badges */}
-                    <div className="flex items-center space-x-2.5 text-[9px] text-muted-foreground font-mono pt-1">
-                      <span>{m.timestamp}</span>
-                      {m.sourceBadge && (
-                        <>
-                          <span>•</span>
-                          <span>{m.sourceBadge}</span>
-                        </>
-                      )}
-                      {m.datasetUsed && (
-                        <>
-                          <span>•</span>
-                          <span className="text-primary font-bold flex items-center space-x-1 bg-secondary/85 px-1.5 py-0.5 rounded border border-border/60">
-                            <Database className="w-2.5 h-2.5" />
-                            <span>{m.datasetUsed}</span>
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* AI Typing loader */}
-            {isTyping && (
-              <div className="flex items-start gap-3 max-w-[80%]">
-                <div className="p-2 rounded-full border border-border bg-secondary text-primary shrink-0">
-                  <Cpu className="w-3.5 h-3.5 animate-spin" />
-                </div>
-                <div className="bg-card border border-border p-3.5 rounded-2xl text-[13px] text-muted-foreground">
-                  Analyzing Snowflake Stage directories...
-                </div>
-              </div>
-            )}
-            <div ref={bottomRef} />
+            {/* Dataset Scope */}
+            <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700">
+              <Filter className="w-3.5 h-3.5 text-neutral-400" />
+              <select
+                value={selectedDataset}
+                onChange={(e) => setSelectedDataset(e.target.value)}
+                className="bg-transparent text-xs text-neutral-800 dark:text-neutral-200 font-medium focus:outline-none cursor-pointer"
+              >
+                {datasets.map((d) => (
+                  <option key={d} value={d} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Export Markdown Report */}
+            <button
+              onClick={handleExportReport}
+              className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all text-xs font-semibold flex items-center gap-1"
+              title="Download Session Report"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </button>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Input box form */}
-      <div className="p-4 border-t border-border bg-card z-10 shrink-0">
-        <form 
+        {/* 2. Messages Conversation View */}
+        <div className="flex-1 overflow-y-auto p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
+          {activeSession.messages.map((m) => (
+            <div
+              key={m.id}
+              className={`flex gap-3 text-xs ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {m.sender === 'ai' && (
+                <div className="w-8 h-8 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-500 flex items-center justify-center shrink-0">
+                  <Cpu className="w-4 h-4" />
+                </div>
+              )}
+
+              <div className={`space-y-2 max-w-2xl ${m.sender === 'user' ? 'items-end text-right' : 'items-start'}`}>
+                <div
+                  className={`p-4 rounded-2xl ${
+                    m.sender === 'user'
+                      ? 'bg-sky-600 text-white shadow-xs'
+                      : 'bg-neutral-100 dark:bg-neutral-800/80 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700'
+                  }`}
+                >
+                  <FormattedMessageText text={m.text} />
+
+                  {/* PDF Document Proof Badge */}
+                  {m.pdfAttachmentName && (
+                    <div className="mt-3 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-600 dark:text-sky-400 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-sky-500 shrink-0" />
+                        <span>Attached Project Technical Proof: <strong>{getProjectTitleForDoc(m.pdfAttachmentName)}</strong></span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setInspectDoc(m.pdfAttachmentName || null);
+                          setInspectSnippet(m.pdfSnippet);
+                        }}
+                        className="px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>Inspect Proof</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* SQL Preview Toggle */}
+                  {m.sqlPreview && (
+                    <div className="mt-3 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+                      <button
+                        onClick={() => setShowSqlId(showSqlId === m.id ? null : m.id)}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-500 hover:underline"
+                      >
+                        <Code className="w-3 h-3" />
+                        <span>{showSqlId === m.id ? 'Hide Source SQL' : 'View Source SQL Query'}</span>
+                      </button>
+
+                      {showSqlId === m.id && (
+                        <div className="relative mt-2 p-3 rounded-xl bg-neutral-950 font-mono text-[11px] text-emerald-400 border border-neutral-800 overflow-x-auto">
+                          <button
+                            onClick={() => handleCopySql(m.sqlPreview || '', m.id)}
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10px] font-semibold flex items-center gap-1"
+                          >
+                            {copiedSqlId === m.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedSqlId === m.id ? 'Copied' : 'Copy'}</span>
+                          </button>
+                          <pre>{m.sqlPreview}</pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* AI Follow-up Suggestions Chips */}
+                {m.sender === 'ai' && m.followUps && m.followUps.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {m.followUps.map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => handleSend(f)}
+                        className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500 hover:text-white border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[11px] font-medium transition-all active:scale-95 text-left"
+                      >
+                        💡 {f}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* AI Footer Metadata */}
+                {m.sender === 'ai' && (
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-neutral-400 px-1">
+                    {m.sourceBadge && <SnowflakeBadge variant="cortex" label={m.sourceBadge} size="sm" />}
+                    {m.confidence !== undefined && <span>Confidence: {(m.confidence * 100).toFixed(1)}%</span>}
+                    <span>• {m.timestamp}</span>
+                    <button
+                      onClick={() => toggleSpeech(m.text)}
+                      className="p-1 hover:text-sky-500 transition-all flex items-center gap-0.5 ml-1"
+                      title="Read Response Aloud"
+                    >
+                      {isSpeaking ? <VolumeX className="w-3 h-3 text-sky-500 animate-pulse" /> : <Volume2 className="w-3 h-3" />}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {m.sender === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isTyping && (
+            <div className="flex gap-3 text-xs items-center">
+              <div className="w-8 h-8 rounded-full bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0 animate-pulse">
+                <Cpu className="w-4 h-4" />
+              </div>
+              <div className="px-4 py-2.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-sky-500 animate-spin" />
+                <span>Cortex AI is querying Snowflake context & scanning PDF audit proofs...</span>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* 3. Dynamic Suggested Prompts */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-sky-500" /> Suggested Prompts:
+          </span>
+          {suggestedQuestions.map((q) => (
+            <button
+              key={q}
+              onClick={() => handleSend(q)}
+              className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-sky-500/50 text-neutral-700 dark:text-neutral-300 text-xs transition-all active:scale-95 text-left truncate max-w-xs"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        {/* 4. Input Form */}
+        <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);
           }}
-          className="flex items-center space-x-3"
+          className="flex items-center gap-2 shrink-0"
         >
           <input
             type="text"
+            placeholder="Ask Cortex AI about projects, budgets, complaints, or search PDF proofs..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a transparency question (e.g. Which projects are delayed?)..."
-            className="w-full bg-secondary border border-border rounded-xl px-4 py-2.5 text-[13px] text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
+            className="flex-1 px-4 py-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
           />
           <button
             type="submit"
-            className="p-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold transition-all active:scale-[0.95] shrink-0"
-            aria-label="Send message"
+            className="px-5 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-3.5 h-3.5" />
+            <span>Send</span>
           </button>
         </form>
       </div>
+
+      {/* PDF Document Proof Inspector Modal */}
+      <DocumentProofModal
+        isOpen={!!inspectDoc}
+        onClose={() => setInspectDoc(null)}
+        filename={inspectDoc}
+        snippet={inspectSnippet}
+        onAskAIAboutDoc={(doc) => handleSend(`Summarize technical audit findings in document ${doc}`)}
+      />
     </div>
   );
 };
-export default Chat;
+

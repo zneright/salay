@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
 import { showToast } from './Toast';
-import { Play, ChevronRight, ChevronLeft, X, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, Sparkles } from 'lucide-react';
 
 interface TourStep {
   title: string;
@@ -12,22 +12,33 @@ interface TourStep {
 }
 
 export const GuidedTour: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const handleStartTour = () => {
+      setIsOpen(true);
+      setCurrentStep(0);
+      showToast('Guided Tour Started! Follow steps on bottom left.', 'info');
+    };
+
+    window.addEventListener('start-guided-tour', handleStartTour);
+    return () => window.removeEventListener('start-guided-tour', handleStartTour);
+  }, []);
+
   const steps: TourStep[] = [
     {
-      title: 'Welcome to SALAY',
-      content: 'This guided tour will take you through the Civic Transparency Engine in 2 minutes. Click Next to begin.',
+      title: 'Welcome to SALAY Demo Tour',
+      content: 'This guided tour will take you through the live Civic Transparency Engine. Click Next to begin.',
     },
     {
-      title: 'Step 1: Choose Persona',
-      content: 'Navigate to the Demo Playground to log in as different stakeholders (Citizen, Official, Auditor, Admin).',
-      targetPath: '/demo',
-      actionRequired: 'Click the "Demo Playground" link or navigate to /demo',
+      title: 'Step 1: Sign Up & Choose Role',
+      content: 'Navigate to the Register page to sign up with your chosen role (Citizen, Official, Auditor, Admin).',
+      targetPath: '/register',
+      actionRequired: 'Click Register Account or navigate to /register',
     },
     {
       title: 'Step 2: Role-Based Dashboard',
@@ -60,7 +71,6 @@ export const GuidedTour: React.FC = () => {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       
-      // Auto-navigate if step has a target path
       const target = steps[nextStep].targetPath;
       if (target && location.pathname !== target) {
         navigate(target);
@@ -85,24 +95,13 @@ export const GuidedTour: React.FC = () => {
   };
 
   if (!isOpen) {
-    return (
-      <button
-        onClick={() => {
-          setIsOpen(true);
-          setCurrentStep(0);
-        }}
-        className="fixed bottom-6 left-6 z-50 flex items-center space-x-2 px-3 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-neutral-100 rounded-lg shadow-xl text-xs font-semibold hover:border-neutral-700 transition-all duration-200"
-      >
-        <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500/20" />
-        <span>Restart Demo Tour</span>
-      </button>
-    );
+    return null;
   }
 
   const step = steps[currentStep];
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 w-80 bg-neutral-950 border border-neutral-900 rounded-xl p-5 shadow-2xl space-y-4 animate-slide-in text-left">
+    <div className="fixed bottom-6 left-6 z-50 w-80 bg-neutral-950 border border-neutral-800 rounded-xl p-5 shadow-2xl space-y-4 animate-slide-in text-left">
       <div className="flex justify-between items-start">
         <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-xs">
           <Sparkles className="w-3.5 h-3.5" />

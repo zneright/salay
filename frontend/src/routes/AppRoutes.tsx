@@ -1,10 +1,9 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { GuestRoute } from '../components/auth/GuestRoute';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { Landing } from '../pages/Landing';
-import { Demo } from '../pages/Demo';
 import { Login } from '../pages/Login';
 import { Register } from '../pages/Register';
 import { ForgotPassword } from '../pages/ForgotPassword';
@@ -14,6 +13,7 @@ import { Analytics } from '../pages/Analytics';
 import { Chat } from '../pages/Chat';
 import { Feedback } from '../pages/Feedback';
 import { Settings } from '../pages/Settings';
+import { CoCoAgentWorkspace } from '../pages/CoCoAgentWorkspace';
 import { NotFound } from '../pages/NotFound';
 import { ToastContainer } from '../components/ui/Toast';
 import { CommandPalette } from '../components/ui/CommandPalette';
@@ -24,11 +24,17 @@ export const AppRoutes: React.FC = () => {
       <Routes>
         {/* Guest Marketing & Authentication Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/demo" element={<Demo />} />
+        <Route path="/demo" element={<Navigate to="/login" replace />} />
+        <Route path="/coco-agent" element={<CoCoAgentWorkspace />} />
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
         <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
 
+        {/* Shortcuts for direct navigation */}
+        <Route path="/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
+        <Route path="/chat" element={<Navigate to="/dashboard/chat" replace />} />
+        <Route path="/feedback" element={<Navigate to="/dashboard/feedback" replace />} />
+        <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
 
         {/* Onboarding Wizard Route */}
         <Route path="/onboarding" element={

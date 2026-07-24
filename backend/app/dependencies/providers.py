@@ -1,22 +1,50 @@
+import logging
 from fastapi import Depends
-from app.repositories.projects import AbstractProjectRepository, MockProjectRepository
-from app.repositories.budgets import AbstractBudgetRepository, MockBudgetRepository
-from app.repositories.feedback import AbstractFeedbackRepository, MockFeedbackRepository
-from app.services.projects import AbstractProjectService, MockProjectService
-from app.services.budgets import AbstractBudgetService, MockBudgetService
-from app.services.feedback import AbstractFeedbackService, MockFeedbackService
-from app.services.ai import AbstractAIService, MockAIService
+from app.db.snowflake import is_snowflake_configured, get_snowflake_connection
 
-# Singleton Mock Database Repositories to preserve state
-_project_repo = MockProjectRepository()
-_budget_repo = MockBudgetRepository()
-_feedback_repo = MockFeedbackRepository()
+from app.repositories.projects import AbstractProjectRepository
+from app.repositories.snowflake_projects import SnowflakeProjectRepository
 
-# Singleton Mock Services
-_project_service = MockProjectService(_project_repo)
-_budget_service = MockBudgetService(_budget_repo)
-_feedback_service = MockFeedbackService(_feedback_repo)
-_ai_service = MockAIService()
+from app.repositories.budgets import AbstractBudgetRepository
+from app.repositories.snowflake_budgets import SnowflakeBudgetRepository
+
+from app.repositories.feedback import AbstractFeedbackRepository
+from app.repositories.snowflake_feedback import SnowflakeFeedbackRepository
+
+from app.services.projects import AbstractProjectService, ProjectService
+from app.services.budgets import AbstractBudgetService, BudgetService
+from app.services.feedback import AbstractFeedbackService, FeedbackService
+
+from app.services.ai import AbstractAIService
+from app.services.snowflake_ai import SnowflakeAIService
+
+logger = logging.getLogger("civic_api")
+
+
+def _resolve_providers():
+    logger.info("Initializing repositories and services strictly with Snowflake DB and Cortex AI backend.")
+    p_repo = SnowflakeProjectRepository()
+    b_repo = SnowflakeBudgetRepository()
+    f_repo = SnowflakeFeedbackRepository()
+    ai_svc = SnowflakeAIService()
+
+    p_svc = ProjectService(p_repo)
+    b_svc = BudgetService(b_repo)
+    f_svc = FeedbackService(f_repo)
+
+    return p_repo, b_repo, f_repo, p_svc, b_svc, f_svc, ai_svc
+
+
+
+(
+    _project_repo,
+    _budget_repo,
+    _feedback_repo,
+    _project_service,
+    _budget_service,
+    _feedback_service,
+    _ai_service,
+) = _resolve_providers()
 
 
 # Dependency Resolvers

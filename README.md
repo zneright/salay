@@ -1,95 +1,136 @@
-# Civic Transparency & Accountability Platform (Snowflake Hackathon 2026)
+# SALAY — The Civic Transparency Engine 🔎
 
-A clean, production-ready, clean-architecture application built for the **Snowflake CoCo CLI Hackathon 2026**.
+**Snowflake CoCo CLI Hackathon 2026**
 
-This platform provides citizens and administrators with transparent access to **Public Works Projects**, **Municipal Budget Expenditures**, and **Citizen Feedback** through natural language querying powered by Snowflake Cortex AI and Snowpark.
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Status](https://img.shields.io/badge/Status-Release_Candidate_1-green.svg)
+![Snowflake](https://img.shields.io/badge/Powered_by-Snowflake_Cortex_AI-29B5E8.svg)
 
----
-
-## 🌟 Hackathon Goals & Manifest
-*   **Real-World Relevance**: Making civic budgets and project allocations readable and searchable by any citizen.
-*   **Technical Execution**: Fully decoupled Clean Architecture (FastAPI + React 19 + TypeScript) built to swap mocks for live Snowflake databases seamlessly.
-*   **Solution Completeness**: A highly polished Vercel/Linear-inspired minimal interface, fully responsive and accessible.
-*   **Decoupled & Replaceable**: Abstraction layers ensure Snowflake drivers, Cortex engines, and CLI agents are easily swappable.
+SALAY is an **AI-Native Data Application** designed to bring absolute transparency to civic operations. By combining unstructured data extraction with natural language querying, SALAY empowers citizens and auditors to instantly understand complex government contracts and public works budgets.
 
 ---
 
-## 🏗️ Architecture & Module Flow
+## 🎯 Problem Statement
+Public works contracts, infrastructure budgets, and government expenditures are often buried in dense, multi-page PDF documents. Citizens, journalists, and independent auditors struggle to extract meaningful insights without legal or financial expertise. This lack of accessibility breeds mistrust and shields corruption.
 
+**The Solution:**
+SALAY serves as a bridge between complex civic data and public transparency. Using **Snowflake Cortex AI**, the platform ingests unstructured PDF contracts (like DPWH projects), instantly extracts key concepts (Budgets, Currencies, Departments), and allows users to "chat" directly with the civic data using natural language. 
+
+---
+
+## ❄️ Snowflake Usage
+
+SALAY is built natively on the Snowflake AI Data Cloud:
+
+1.  **Snowflake Cortex AI**: Powers the core document intelligence and natural language chat interface (using `llama3-70b`, `llama3.1-405b`, and `mistral-large`).
+2.  **Snowpark**: Used to manipulate and analyze tabular budget data in the backend securely.
+3.  **Snowflake Database**: Acts as the primary transactional datastore for structured project metadata (`CIVIC_TRANSPARENCY_DB`).
+4.  **CoCo CLI**: Embedded command-line execution and reasoning router (`/api/v1/cli/execute`) for backend automation and status checks.
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+SALAY uses a highly decoupled Clean Architecture designed for enterprise scalability.
+
+*   **Frontend**: React 19, Vite, TypeScript, Tailwind CSS, shadcn/ui.
+*   **Backend**: FastAPI, Python 3.11, Pydantic.
+*   **Data & AI**: Snowflake Connector for Python, Snowpark, Cortex LLMs.
+*   **Design System**: Vercel/Linear-inspired glassmorphic UI, responsive fluid grid layouts.
+
+---
+
+## 🚀 Installation & Environment Setup
+
+### Prerequisites
+*   Python 3.11+
+*   Node.js v20+
+*   Snowflake Trial or Enterprise Account
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/salay.git
+cd salay
 ```
-   [ React SPA UI ]
-          │
-          ▼
-   [ Axios Client ]
-          │
-          ▼
-   [ FastAPI Router ]
-          │
-          ▼
-  [ Service Interfaces ]  <── (Dependency Injection)
-          │
-          ▼
- [ Repository Interfaces ] <── (Decoupled Adapters)
-          │
-          ▼
-    [ Snowflake ]
+
+### 2. Environment Configuration
+Duplicate the `.env.example` files in both the frontend and backend directories.
+
+**Backend (`backend/.env`)**
+```env
+USE_SNOWFLAKE=true
+SNOWFLAKE_ACCOUNT=your_account
+SNOWFLAKE_USER=your_user
+SNOWFLAKE_PASSWORD=your_password
+CORTEX_MODEL=llama3-70b
+```
+
+**Frontend (`frontend/.env`)**
+```env
+VITE_API_URL=http://localhost:8000
+VITE_USE_MOCK=false
 ```
 
 ---
 
-## 📁 Repository Layout
-```
-salay/
-├── backend/            # FastAPI REST Service (Python 3.11)
-├── frontend/           # Vite + React (TypeScript + Tailwind + shadcn/ui)
-├── docs/               # Architecture, API, and setup documentation
-├── scripts/            # Local developer onboarding automation
-├── README.md           # This file
-├── FEATURE_STATUS.md   # Feature roadmap and state logs
-├── TECH_DEBT.md        # Technical debt registry
-├── DEVELOPMENT_LOG.md  # Engineering dairy and log
-└── ADR.md              # Architecture Decision Records
-```
+## 🏃‍♂️ Running Locally
 
----
-
-## 🚀 Quick Start (Local Setup)
-
-To set up local virtual environments and node modules quickly on Windows, run the automated setup script from PowerShell:
+SALAY features an automated setup script for Windows PowerShell:
 
 ```powershell
 .\scripts\setup.ps1
 ```
 
-### Starting the Backend
+Alternatively, you can run the servers manually:
+
+**Terminal 1: Start the Backend (FastAPI)**
 ```bash
 cd backend
+python -m venv venv
 venv\Scripts\activate
+pip install -r requirements.txt
 python run.py
 ```
-*API docs will be available at:* `http://localhost:8000/docs`
+*API docs available at: http://localhost:8000/docs*
 
-### Starting the Frontend
+**Terminal 2: Start the Frontend (Vite/React)**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*UI will be available at:* `http://localhost:5173`
+*App available at: http://localhost:5173*
 
 ---
 
-## 🗺️ Snowflake Integration Roadmap
-1.  **Phase 1**: Mock APIs returning static Civic Transparency schemas.
-2.  **Phase 2**: Local JSON storage.
-3.  **Phase 3**: Connection handshake implementation.
-4.  **Phase 4**: Snowflake SQL queries (Snowflake Python Connector).
-5.  **Phase 5**: Snowpark DataFrames data-wrangling.
-6.  **Phase 6**: Snowflake Cortex AI integration.
-7.  **Phase 7**: CoCo CLI Agent automation.
-8.  **Phase 8**: Production optimization & demo readiness.
+## ⚖️ Demo Guide for Judges
+
+To experience the full flow of SALAY in under 3 minutes:
+
+1.  **Launch the App**: Open the Landing Page and click **Enter Platform**.
+2.  **View the Dashboard**: Review the real-time project statistics and active public works contracts. 
+3.  **Inspect a Document**: Click the `Inspect Proof` button on the "Metro Manila Flood Control" project card to see how unstructured PDF data was mapped to structured insights.
+4.  **AI Workspace**: Navigate to the Chat interface. Ask a question like: *"Is the flood control project over budget?"* Watch Cortex AI stream a reasoned response.
+5.  **Toggle Metadata**: Turn on the **Snowpark & SQL Preview** toggle in the chat to see the actual Snowflake queries generated by the LLM.
+6.  **Citizen Feedback**: Click on the Feedback tab to simulate reporting a local infrastructure issue.
+
+---
+
+## 📸 Screenshots
+
+*(Add links to images of the Landing Page, Dashboard, and AI Workspace here)*
+- `[Screenshot 1: Landing Page]`
+- `[Screenshot 2: Dashboard]`
+- `[Screenshot 3: AI Chat Interface]`
+
+---
+
+## 🤝 Acknowledgements
+
+*   Built for the **Snowflake CoCo CLI Hackathon 2026**
+*   Hosted by **Hack2Skill**
 
 ---
 
 ## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open-source and licensed under the MIT License.

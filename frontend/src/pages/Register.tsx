@@ -11,6 +11,8 @@ import { AlertCircle, ArrowRight } from 'lucide-react';
 const registerSchema = z.object({
   fullName: z.string().min(3, 'Name must contain at least 3 characters.'),
   email: z.string().email('Please enter a valid email address.'),
+  role: z.enum(['Citizen', 'Government Official', 'Auditor', 'Administrator']),
+  organization: z.string().optional(),
   password: z.string().min(6, 'Password must contain at least 6 characters.'),
   confirmPassword: z.string(),
   terms: z.boolean().refine(val => val === true, 'You must accept the terms of use.'),
@@ -36,6 +38,8 @@ export const Register: React.FC = () => {
     defaultValues: {
       fullName: '',
       email: '',
+      role: 'Citizen',
+      organization: '',
       password: '',
       confirmPassword: '',
       terms: false,
@@ -68,20 +72,21 @@ export const Register: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      await registerUser(data.fullName, data.email);
-      showToast('Registration successful! Setup your profile.', 'success');
-      navigate('/onboarding');
-    } catch {
-      showToast('Registration failed.', 'error');
+      await registerUser(data.fullName, data.email, data.role, data.organization, data.password);
+      showToast(`Registration successful as ${data.role}! Saved to Snowflake DB.`, 'success');
+      navigate('/dashboard');
+    } catch (err: any) {
+      showToast(err?.response?.data?.detail || err?.message || 'Registration failed.', 'error');
     }
   };
+
 
   return (
     <AuthLayout>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left font-semibold">
         <div>
           <h1 className="text-sm font-bold text-foreground">Create Account</h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Register for the civic audit terminal.</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Register your account & choose your role for the civic audit terminal.</p>
         </div>
 
         {/* Full name */}
@@ -114,6 +119,36 @@ export const Register: React.FC = () => {
               <AlertCircle className="w-3 h-3" /> <span>{errors.email.message}</span>
             </span>
           )}
+        </div>
+
+        {/* Role Selection Dropdown */}
+        <div className="space-y-1.5">
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Account Role</label>
+          <select
+            {...register('role')}
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary font-semibold"
+          >
+            <option value="Citizen">Citizen (Public Access & Reports)</option>
+            <option value="Government Official">Government Official (Department Management)</option>
+            <option value="Auditor">Auditor (Financial Oversight & Compliance)</option>
+            <option value="Administrator">Administrator (Full Control)</option>
+          </select>
+          {errors.role && (
+            <span className="text-[10px] text-rose-500 flex items-center space-x-1">
+              <AlertCircle className="w-3 h-3" /> <span>{errors.role.message}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Organization / Department */}
+        <div className="space-y-1.5">
+          <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">Organization / Department (Optional)</label>
+          <input
+            type="text"
+            {...register('organization')}
+            placeholder="e.g. Ward 4 Community Council, Public Works"
+            className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-primary placeholder-muted-foreground/60"
+          />
         </div>
 
         {/* Password */}

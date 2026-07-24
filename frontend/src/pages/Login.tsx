@@ -38,10 +38,12 @@ export const Login: React.FC = () => {
       await login(data.email, data.password);
       showToast('Logged in successfully', 'success');
       navigate('/dashboard');
-    } catch {
-      showToast('Login failed. Please verify credentials.', 'error');
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err?.message || 'Login failed. Account not found or pending approval.';
+      showToast(msg, 'error');
     }
   };
+
 
   return (
     <AuthLayout>

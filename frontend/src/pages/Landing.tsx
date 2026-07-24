@@ -54,10 +54,10 @@ export const Landing: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
-              to="/demo"
+              to="/register"
               className="px-6 py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-xl shadow-lg hover:shadow-primary/20 transition-all flex items-center space-x-2"
             >
-              <span>Try Demo Instantly</span>
+              <span>Get Started & Register</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <a

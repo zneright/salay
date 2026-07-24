@@ -9,6 +9,8 @@ from app.api.v1.projects import router as projects_router
 from app.api.v1.budgets import router as budgets_router
 from app.api.v1.feedback import router as feedback_router
 from app.api.v1.ai import router as ai_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.cli import router as cli_router
 
 
 def create_app() -> FastAPI:
@@ -25,7 +27,7 @@ def create_app() -> FastAPI:
     # CORS Configurations
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.CORS_ORIGINS],
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -38,10 +40,12 @@ def create_app() -> FastAPI:
     api_prefix = "/api/v1"
     app.include_router(health_router, prefix=api_prefix, tags=["Diagnostics"])
     app.include_router(version_router, prefix=api_prefix, tags=["Diagnostics"])
+    app.include_router(auth_router, prefix=api_prefix, tags=["Authentication"])
     app.include_router(projects_router, prefix=api_prefix, tags=["Public Works"])
     app.include_router(budgets_router, prefix=api_prefix, tags=["Municipal Budgets"])
     app.include_router(feedback_router, prefix=api_prefix, tags=["Citizen Reports"])
     app.include_router(ai_router, prefix=api_prefix, tags=["Cortex AI"])
+    app.include_router(cli_router, prefix=api_prefix, tags=["CoCo CLI Agent"])
 
     return app
 

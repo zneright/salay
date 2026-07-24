@@ -2,10 +2,18 @@ from pydantic import BaseModel, Field
 from typing import List
 
 
+class BudgetAllocationCreateRequest(BaseModel):
+    fiscal_year: int = Field(2026, description="Approved budget fiscal year")
+    department: str = Field(..., description="Municipal division title")
+    allocated: float = Field(..., description="Total set budget limit")
+    spent: float = Field(0.0, description="Total spent to date")
+
+
 class BudgetAllocation(BaseModel):
     department: str = Field(..., description="Municipal division title")
     allocated: float = Field(..., description="Total set budget limit")
     spent: float = Field(..., description="Total spent to date")
+
 
 
 class BudgetSummaryResponse(BaseModel):

@@ -8,10 +8,18 @@ class AbstractBudgetService(ABC):
     def retrieve_budget_summary(self) -> Dict[str, Any]:
         pass
 
+    @abstractmethod
+    def create_budget_allocation(self, budget_data: Dict[str, Any]) -> Dict[str, Any]:
+        pass
 
-class MockBudgetService(AbstractBudgetService):
+
+class BudgetService(AbstractBudgetService):
     def __init__(self, repository: AbstractBudgetRepository) -> None:
         self._repository = repository
 
     def retrieve_budget_summary(self) -> Dict[str, Any]:
         return self._repository.get_budget_summary()
+
+    def create_budget_allocation(self, budget_data: Dict[str, Any]) -> Dict[str, Any]:
+        return self._repository.create_budget_allocation(budget_data)
+

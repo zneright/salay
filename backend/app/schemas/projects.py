@@ -1,6 +1,16 @@
 from pydantic import BaseModel, Field
 
 
+class ProjectCreateRequest(BaseModel):
+    title: str = Field(..., description="Name of the public works project")
+    department: str = Field(..., description="Department handling the project")
+    budget: float = Field(..., description="Total allocated project funding")
+    status: str = Field("Planned", description="Progress status")
+    location: str = Field("Ward 4", description="Geographical or ward zone")
+    timeline: str = Field("2026", description="Project timeline window")
+    progress: int = Field(0, ge=0, le=100, description="Completeness percentage")
+
+
 class ProjectResponse(BaseModel):
     id: str = Field(..., description="Unique alphanumeric project identifier")
     title: str = Field(..., description="Name of the public works project")
@@ -27,3 +37,4 @@ class ProjectResponse(BaseModel):
             }
         }
     }
+

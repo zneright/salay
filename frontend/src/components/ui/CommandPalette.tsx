@@ -10,7 +10,6 @@ import {
   FileText, 
   Settings, 
   X, 
-  UserCheck, 
   LogOut,
   FolderKanban,
   Coins
@@ -18,7 +17,7 @@ import {
 
 interface PaletteItem {
   name: string;
-  category: 'Navigation' | 'Actions' | 'Demo Roles' | 'Search Data';
+  category: 'Navigation' | 'Actions' | 'Search Data';
   icon: React.ComponentType<any>;
   keywords: string;
   action: () => void;
@@ -28,7 +27,7 @@ export const CommandPalette: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
-  const { loginAsDemoRole, logout } = useAuth();
+  const { logout } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -122,73 +121,39 @@ export const CommandPalette: React.FC = () => {
       }
     },
 
-    // Demo Roles
+    // Live Snowflake Data Navigation
     {
-      name: 'Switch to Citizen Persona (Juan Dela Cruz)',
-      category: 'Demo Roles',
-      icon: UserCheck,
-      keywords: 'role citizen local public juan observer',
-      action: async () => {
-        await loginAsDemoRole('Citizen');
-        showToast('Switched to Citizen Persona', 'success');
-        navigate('/dashboard');
-      }
-    },
-    {
-      name: 'Switch to Government Official (Mayor Santos)',
-      category: 'Demo Roles',
-      icon: UserCheck,
-      keywords: 'role government official mayor roberto executive',
-      action: async () => {
-        await loginAsDemoRole('Government Official');
-        showToast('Switched to Official Persona', 'success');
-        navigate('/dashboard');
-      }
-    },
-    {
-      name: 'Switch to Auditor Persona (Maria Santos)',
-      category: 'Demo Roles',
-      icon: UserCheck,
-      keywords: 'role auditor accounts verification check general',
-      action: async () => {
-        await loginAsDemoRole('Auditor');
-        showToast('Switched to Auditor Persona', 'success');
-        navigate('/dashboard');
-      }
-    },
-
-    // Mock Data Search
-    {
-      name: 'Data Source: Oakridge School Solar Conversion (PRJ-8812)',
+      name: 'Snowflake Table: PROJECTS (Public Infrastructure)',
       category: 'Search Data',
       icon: FolderKanban,
-      keywords: 'project oakridge school solar retrofit green energy',
+      keywords: 'project infrastructure public works database snowflake',
       action: () => {
         navigate('/dashboard');
-        showToast('Viewing Oakridge School project card', 'info');
+        showToast('Viewing live Snowflake PROJECTS table registry', 'info');
       }
     },
     {
-      name: 'Data Source: Transit Line-C Lane Expansion (PRJ-1024)',
-      category: 'Search Data',
-      icon: FolderKanban,
-      keywords: 'project transit bus lane expansion transit core road',
-      action: () => {
-        navigate('/dashboard');
-        showToast('Viewing Transit Line-C project card', 'info');
-      }
-    },
-    {
-      name: 'Data Source: Infrastructure & Engineering Budget (Code: 8812-441-A)',
+      name: 'Snowflake Table: BUDGETS (Municipal Outlays)',
       category: 'Search Data',
       icon: Coins,
-      keywords: 'budget money code engineering infrastructure spends capital',
+      keywords: 'budget money code engineering infrastructure spends capital snowflake',
       action: () => {
         navigate('/dashboard/analytics');
-        showToast('Analyzing Capital Outlay segments', 'info');
+        showToast('Viewing live Snowflake BUDGETS table allocations', 'info');
+      }
+    },
+    {
+      name: 'Snowflake Table: FEEDBACK_REPORTS (Citizen Tickets)',
+      category: 'Search Data',
+      icon: FileText,
+      keywords: 'feedback reports citizen incident tickets snowflake',
+      action: () => {
+        navigate('/dashboard/feedback');
+        showToast('Viewing live Snowflake FEEDBACK_REPORTS registry', 'info');
       }
     }
   ];
+
 
   const filtered = items.filter(
     (item) =>

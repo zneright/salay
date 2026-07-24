@@ -13,7 +13,7 @@ class AbstractFeedbackService(ABC):
         pass
 
 
-class MockFeedbackService(AbstractFeedbackService):
+class FeedbackService(AbstractFeedbackService):
     def __init__(self, repository: AbstractFeedbackRepository) -> None:
         self._repository = repository
 
@@ -22,3 +22,4 @@ class MockFeedbackService(AbstractFeedbackService):
 
     def retrieve_all_reports(self) -> List[Dict[str, Any]]:
         return self._repository.get_all_feedback()
+

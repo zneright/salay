@@ -12,8 +12,12 @@ class AbstractProjectService(ABC):
     def retrieve_project_by_id(self, project_id: str) -> Dict[str, Any] | None:
         pass
 
+    @abstractmethod
+    def create_project(self, project_data: Dict[str, Any]) -> Dict[str, Any]:
+        pass
 
-class MockProjectService(AbstractProjectService):
+
+class ProjectService(AbstractProjectService):
     def __init__(self, repository: AbstractProjectRepository) -> None:
         self._repository = repository
 
@@ -22,3 +26,7 @@ class MockProjectService(AbstractProjectService):
 
     def retrieve_project_by_id(self, project_id: str) -> Dict[str, Any] | None:
         return self._repository.get_project_by_id(project_id)
+
+    def create_project(self, project_data: Dict[str, Any]) -> Dict[str, Any]:
+        return self._repository.create_project(project_data)
+
