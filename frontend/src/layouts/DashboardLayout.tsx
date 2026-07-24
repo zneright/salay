@@ -12,7 +12,6 @@ import {
   FileText, 
   Settings, 
   X,
-  Building2,
   ChevronDown,
   User,
   LogOut,
@@ -85,7 +84,7 @@ export const DashboardLayout: React.FC = () => {
         <div className="flex items-center space-x-6">
           {/* Logo brand */}
           <Link to="/" className="flex items-center space-x-2 shrink-0">
-            <Building2 className="w-5 h-5 text-sky-500" />
+            <img src="/logo.png" alt="SALAY Logo" className="w-6 h-6 object-contain" />
             <span className="font-extrabold text-base tracking-wider text-neutral-900 dark:text-white uppercase">
               SALAY
             </span>

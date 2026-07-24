@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2, Sun, Moon, LogOut, LayoutDashboard } from 'lucide-react';
+import { Sun, Moon, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 
 export const Navbar: React.FC = () => {
@@ -41,7 +41,7 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link to="/" className="flex items-center space-x-2">
-          <Building2 className="w-5 h-5 text-sky-500" />
+          <img src="/logo.png" alt="SALAY Logo" className="w-6 h-6 object-contain" />
           <span className="font-bold text-sm tracking-tight">SALAY</span>
         </Link>
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Building2 } from 'lucide-react';
 
 export const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -11,7 +10,7 @@ export const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         {/* Logo Card Header */}
         <div className="flex flex-col items-center text-center space-y-2">
           <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl">
-            <Building2 className="w-6 h-6 text-neutral-100" />
+            <img src="/logo.png" alt="SALAY Logo" className="w-8 h-8 object-contain" />
           </div>
           <h2 className="text-xl font-bold tracking-tight">SALAY Engine Gateway</h2>
           <p className="text-xs text-neutral-500">Democratizing Civic Budgets and Projects Records</p>

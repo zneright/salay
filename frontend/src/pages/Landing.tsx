@@ -212,7 +212,7 @@ export const Landing: React.FC = () => {
       <footer className="py-12 px-6 border-t border-border bg-card text-xs text-muted-foreground select-none">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center space-x-2">
-            <Database className="w-5 h-5 text-primary" />
+            <img src="/logo.png" alt="SALAY Logo" className="w-5 h-5 object-contain" />
             <span className="font-bold text-foreground tracking-tight">SALAY Transparency Engine</span>
           </div>
           <div className="flex space-x-6 text-[11px] font-medium">
