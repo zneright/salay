@@ -40,9 +40,9 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors text-neutral-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link to="/" className="flex items-center space-x-2">
-          <img src="/logo.png" alt="SALAY Logo" className="w-6 h-6 object-contain" />
-          <span className="font-bold text-sm tracking-tight">SALAY</span>
+        <Link to="/" className="flex items-center space-x-2.5">
+          <img src="/logo.png" alt="SALAY Logo" className="h-7 w-auto object-contain drop-shadow-sm" />
+          <span className="font-extrabold text-base tracking-tight">SALAY</span>
         </Link>
 
         {/* Scroll link points */}

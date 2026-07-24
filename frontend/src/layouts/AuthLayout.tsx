@@ -9,8 +9,8 @@ export const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       <div className="w-full max-w-md space-y-6 relative z-10">
         {/* Logo Card Header */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl">
-            <img src="/logo.png" alt="SALAY Logo" className="w-8 h-8 object-contain" />
+          <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl shadow-inner">
+            <img src="/logo.png" alt="SALAY Logo" className="w-12 h-12 object-contain" />
           </div>
           <h2 className="text-xl font-bold tracking-tight">SALAY Engine Gateway</h2>
           <p className="text-xs text-neutral-500">Democratizing Civic Budgets and Projects Records</p>

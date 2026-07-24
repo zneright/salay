@@ -83,8 +83,8 @@ export const DashboardLayout: React.FC = () => {
       <header className="hidden md:flex h-16 items-center justify-between px-6 border-b border-border bg-card/85 sticky top-0 z-40 backdrop-blur-md">
         <div className="flex items-center space-x-6">
           {/* Logo brand */}
-          <Link to="/" className="flex items-center space-x-2 shrink-0">
-            <img src="/logo.png" alt="SALAY Logo" className="w-6 h-6 object-contain" />
+          <Link to="/" className="flex items-center space-x-2.5 shrink-0">
+            <img src="/logo.png" alt="SALAY Logo" className="h-7 w-auto object-contain drop-shadow-sm" />
             <span className="font-extrabold text-base tracking-wider text-neutral-900 dark:text-white uppercase">
               SALAY
             </span>

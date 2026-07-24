@@ -1,7 +1,7 @@
 # SALAY — The Civic Transparency Engine 🔎
 
 <p align="center">
-  <img src="frontend/public/logo.png" alt="SALAY Logo" width="120" />
+  <img src="frontend/public/logo.png" alt="SALAY Logo" width="200" />
 </p>
 
 **Snowflake CoCo CLI Hackathon 2026**
