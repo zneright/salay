@@ -113,11 +113,16 @@ export const Login: React.FC = () => {
         </button>
 
         {/* Footer actions */}
-        <div className="text-center pt-2 border-t border-border text-[10px] text-muted-foreground">
-          <span>Don't have an account? </span>
-          <Link to="/register" className="text-primary hover:underline">
-            Register here
+        <div className="text-center pt-3 border-t border-border text-[10px] text-muted-foreground flex items-center justify-between">
+          <Link to="/" className="text-neutral-400 hover:text-sky-400 font-semibold flex items-center gap-1">
+            ← Back to Landing Page
           </Link>
+          <div>
+            <span>Don't have an account? </span>
+            <Link to="/register" className="text-primary hover:underline font-bold">
+              Register here
+            </Link>
+          </div>
         </div>
       </form>
     </AuthLayout>

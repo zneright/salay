@@ -18,13 +18,15 @@ import { NotFound } from '../pages/NotFound';
 import { ToastContainer } from '../components/ui/Toast';
 import { CommandPalette } from '../components/ui/CommandPalette';
 
+import { JudgeRolePicker } from '../pages/JudgeRolePicker';
+
 export const AppRoutes: React.FC = () => {
   return (
     <>
       <Routes>
         {/* Guest Marketing & Authentication Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/demo" element={<Navigate to="/login" replace />} />
+        <Route path="/demo" element={<JudgeRolePicker />} />
         <Route path="/coco-agent" element={<CoCoAgentWorkspace />} />
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
