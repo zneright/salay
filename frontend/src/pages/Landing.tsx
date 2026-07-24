@@ -23,9 +23,9 @@ export const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
-  const [activePersona, setActivePersona] = useState<'citizen' | 'auditor' | 'official'>('citizen');
+  const [activePersona, setActivePersona] = useState<'citizen' | 'auditor' | 'official' | 'admin'>('auditor');
 
-  const handleLaunchDemo = (roleName: 'Auditor' | 'Government Official' | 'Citizen' = 'Auditor') => {
+  const handleLaunchDemo = (roleName: 'Auditor' | 'Government Official' | 'Citizen' | 'Administrator' = 'Auditor') => {
     loginAsDemo(roleName);
     navigate('/dashboard');
   };
@@ -78,6 +78,11 @@ export const Landing: React.FC = () => {
       title: 'For Public Officials',
       desc: 'Monitor department allocations in real-time with automated CoCo CLI status reports and alerts.',
       highlights: ['Real-time budget outlay dashboards', 'Automated CoCo CLI status tracking', 'Cross-department expenditure summaries']
+    },
+    admin: {
+      title: 'For System Administrators',
+      desc: 'Full governance control over Snowflake CoCo CLI agents, database schemas, and Cortex LLM pipelines.',
+      highlights: ['Manage Snowflake stages & CoCo agent pipelines', 'Control user roles and audit permissions', 'Monitor sub-millisecond query performance']
     }
   };
 
@@ -292,8 +297,8 @@ export const Landing: React.FC = () => {
         </div>
 
         {/* Persona Tabs */}
-        <div className="flex justify-center space-x-2 mb-8">
-          {(['citizen', 'auditor', 'official'] as const).map((persona) => (
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {(['citizen', 'auditor', 'official', 'admin'] as const).map((persona) => (
             <button
               key={persona}
               onClick={() => setActivePersona(persona)}
@@ -327,13 +332,14 @@ export const Landing: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
-            <span className="text-[10px] font-mono text-neutral-500">🔒 Ephemeral Demo Mode — No Signup Needed</span>
+            <span className="text-[10px] font-mono text-neutral-500">🔒 Ephemeral Demo Mode — Session Reset On Exit</span>
             <button
               onClick={() => {
-                const roleMap: Record<string, 'Citizen' | 'Auditor' | 'Government Official'> = {
+                const roleMap: Record<string, 'Citizen' | 'Auditor' | 'Government Official' | 'Administrator'> = {
                   citizen: 'Citizen',
                   auditor: 'Auditor',
-                  official: 'Government Official'
+                  official: 'Government Official',
+                  admin: 'Administrator'
                 };
                 handleLaunchDemo(roleMap[activePersona]);
               }}

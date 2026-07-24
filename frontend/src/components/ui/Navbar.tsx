@@ -71,6 +71,16 @@ export const Navbar: React.FC = () => {
               </div>
               <button
                 onClick={() => {
+                  loginAsDemo('Administrator');
+                  navigate('/dashboard');
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 text-neutral-200 hover:text-amber-400 font-medium flex items-center justify-between"
+              >
+                <span>⚡ Administrator Persona</span>
+                <span className="text-[10px] text-amber-400 font-mono font-bold">Admin Control</span>
+              </button>
+              <button
+                onClick={() => {
                   loginAsDemo('Auditor');
                   navigate('/dashboard');
                 }}

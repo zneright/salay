@@ -41,6 +41,7 @@ export const JudgeModeBar: React.FC = () => {
                 }}
                 className="bg-neutral-950 text-emerald-400 border border-neutral-700 px-2 py-0.5 rounded text-[11px] font-bold cursor-pointer focus:outline-none"
               >
+                <option value="Administrator">⚡ Administrator (Full Control)</option>
                 <option value="Auditor">🕵️ Auditor (Full Proof Access)</option>
                 <option value="Government Official">🏛️ Government Official</option>
                 <option value="Citizen">👤 Citizen Persona</option>
