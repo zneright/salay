@@ -20,6 +20,8 @@ import { CommandPalette } from '../components/ui/CommandPalette';
 
 import { JudgeRolePicker } from '../pages/JudgeRolePicker';
 
+import { Navbar } from '../components/ui/Navbar';
+
 export const AppRoutes: React.FC = () => {
   return (
     <>
@@ -27,7 +29,14 @@ export const AppRoutes: React.FC = () => {
         {/* Guest Marketing & Authentication Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/demo" element={<JudgeRolePicker />} />
-        <Route path="/coco-agent" element={<CoCoAgentWorkspace />} />
+        <Route path="/coco-agent" element={
+          <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <Navbar />
+            <main className="flex-1 p-4 md:p-8">
+              <CoCoAgentWorkspace />
+            </main>
+          </div>
+        } />
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
         <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
