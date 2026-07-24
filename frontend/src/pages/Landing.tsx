@@ -395,6 +395,91 @@ export const Landing: React.FC = () => {
         </div>
       </section>
 
+      {/* 4.5 Full Technology Stack Matrix Showcase */}
+      <section className="py-24 px-6 max-w-6xl mx-auto w-full text-center border-b border-neutral-200 dark:border-neutral-900">
+        <div className="space-y-3 mb-16">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">Integrated Tech Stack</span>
+          <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white">Powered By Cutting-Edge Data Infrastructure</h2>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-lg mx-auto">
+            SALAY seamlessly orchestrates Snowflake Data Cloud, Cortex AI LLMs, CoCo CLI agents, and secure webhooks.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+          {/* Tech 1: Snowflake Data Cloud */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-sky-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">❄️</span>
+              <span className="text-[10px] font-mono font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded">Core Database</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-sky-500 transition-colors">Snowflake Data Cloud</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Multi-cluster warehouse hosting `CIVIC_TRANSPARENCY_DB` with Snowpark Python UDFs, zero-copy cloning, and encrypted Stages.
+            </p>
+          </div>
+
+          {/* Tech 2: Snowflake Cortex AI */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-purple-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">🤖</span>
+              <span className="text-[10px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded">AI Engine</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-purple-500 transition-colors">Snowflake Cortex AI</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              `llama3-70b` & `llama3.1-405b` models executing natural language vector search & Cortex Document AI text extraction directly inside Snowflake.
+            </p>
+          </div>
+
+          {/* Tech 3: CoCo CLI Agent */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-emerald-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">⚡</span>
+              <span className="text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">CLI Agent</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-emerald-500 transition-colors">CoCo CLI Automation Suite</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Automated CLI command agent (`coco status`, `coco audit`, `coco ingest`) managing real-time data sync & system diagnostics.
+            </p>
+          </div>
+
+          {/* Tech 4: Python & FastAPI */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-amber-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">🐍</span>
+              <span className="text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">REST API</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-amber-500 transition-colors">Python 3.11 & FastAPI</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              High-throughput async backend API with Pydantic schemas, JWT authentication, and government procurement webhook receivers.
+            </p>
+          </div>
+
+          {/* Tech 5: React 18 & TypeScript */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-cyan-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">⚛️</span>
+              <span className="text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded">Frontend UI</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-cyan-500 transition-colors">React 18 & TypeScript</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Vite 5 build framework with Tailwind CSS design tokens, glassmorphism UI, Lucide icons, and Chart.js analytics engine.
+            </p>
+          </div>
+
+          {/* Tech 6: Cryptographic Ingestion & Security */}
+          <div className="p-6 border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 rounded-3xl space-y-3 hover:border-rose-500/40 transition-all shadow-md backdrop-blur-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">🔒</span>
+              <span className="text-[10px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded">Security</span>
+            </div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-rose-500 transition-colors">Cryptographic Verification</h3>
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              SHA-256 document hashing, EXIF/IP metadata stripping for citizen whistleblower anonymity, and strict RBAC route guards.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 5. FAQs Accordion (id="faq") */}
       <section id="faq" className="py-24 px-6 max-w-4xl mx-auto w-full text-left scroll-mt-20">
         <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white text-center mb-12">Frequently Asked Questions</h2>

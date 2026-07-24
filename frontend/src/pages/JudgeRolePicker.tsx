@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { showToast } from '../components/ui/Toast';
 
-export const JudgeRolePicker: React.FC = () => {
+export const DemoRolePicker: React.FC = () => {
   const { loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -244,4 +244,5 @@ export const JudgeRolePicker: React.FC = () => {
     </div>
   );
 };
-export default JudgeRolePicker;
+export const JudgeRolePicker = DemoRolePicker;
+export default DemoRolePicker;

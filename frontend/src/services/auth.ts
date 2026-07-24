@@ -36,12 +36,12 @@ export class RealAuthService implements IAuthService {
 
   public loginAsDemo(role: UserProfile['role'] = 'Auditor'): UserProfile {
     const demoUser: UserProfile = {
-      id: 'demo-judge-session',
-      fullName: `Judge (${role})`,
-      email: 'judge.panel@snowflake.hackathon',
+      id: 'demo-session',
+      fullName: `Demo User (${role})`,
+      email: 'demo.persona@salay.engine',
       role: role,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
-      organization: 'Snowflake CoCo CLI Review Board',
+      organization: 'SALAY Live Demo Sandbox',
       createdAt: new Date().toISOString(),
       account_status: 'Demo Ephemeral Sandbox',
       isDemo: true
