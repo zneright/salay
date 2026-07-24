@@ -61,13 +61,15 @@ export const Navbar: React.FC = () => {
           <span className="font-extrabold text-base tracking-tight">SALAY</span>
         </Link>
 
-        {/* Scroll link points */}
+        {/* Scroll link points (Role-Filtered) */}
         <nav className="hidden md:flex items-center space-x-6 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
           <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">Features</a>
           <a href="#technology" onClick={(e) => handleNavClick(e, 'technology')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">Technology</a>
-          <Link to="/coco-agent" className="text-[#29b5e8] font-semibold hover:underline flex items-center gap-1">
-            <span>CoCo Agent CLI</span>
-          </Link>
+          {(!user || user.role === 'Administrator') && (
+            <Link to="/coco-agent" className="text-[#29b5e8] font-semibold hover:underline flex items-center gap-1">
+              <span>CoCo Agent CLI</span>
+            </Link>
+          )}
           <a href="#faq" onClick={(e) => handleNavClick(e, 'faq')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">FAQ</a>
         </nav>
 

@@ -68,14 +68,16 @@ export const DashboardLayout: React.FC = () => {
     }
   };
 
-  const navigation: NavigationItem[] = [
+  const rawNavigation: (NavigationItem & { adminOnly?: boolean })[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'AI Chat', href: '/chat', icon: MessageSquare },
-    { name: 'Reports', href: '/feedback', icon: FileText },
-    { name: 'CoCo Agent', href: '/coco-agent', icon: Terminal },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'AI Chat', href: '/dashboard/chat', icon: MessageSquare },
+    { name: 'Reports', href: '/dashboard/feedback', icon: FileText },
+    { name: 'CoCo Agent', href: '/coco-agent', icon: Terminal, adminOnly: true },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
+
+  const navigation = rawNavigation.filter((item) => !item.adminOnly || user?.role === 'Administrator');
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors font-sans antialiased">
@@ -93,7 +95,7 @@ export const DashboardLayout: React.FC = () => {
             </span>
           </Link>
 
-          {/* Navigation Items */}
+          {/* Navigation Items (Role-Filtered) */}
           <nav className="flex items-center space-x-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
