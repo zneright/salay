@@ -122,7 +122,7 @@ export const Dashboard: React.FC = () => {
   const handleAuditorFlagAnomaly = (project: CivicProject) => {
     const exists = auditFlaggedQueue.some((q) => q.id === project.id);
     if (exists) {
-      showToast(`Project ${project.id} is already flagged in the Official Review Queue`, 'info');
+      showToast(`Project ${project.id} is already in the Official Review Queue. Switch to 'Official' role to inspect!`, 'info');
       return;
     }
 
@@ -134,7 +134,7 @@ export const Dashboard: React.FC = () => {
     };
 
     setAuditFlaggedQueue((prev) => [newFlag, ...prev]);
-    showToast(`🚩 Anomaly Flagged! Sent ${project.id} directly to Public Official's Review Queue`, 'success');
+    showToast(`🚩 Anomaly Flagged! Sent ${project.id} directly to Public Official's Review Queue. (Switch role to 'Official' to view!)`, 'success');
   };
 
   // Cross-Persona Action 2: Official Resolves Anomaly -> Updates System Project Status
@@ -145,12 +145,12 @@ export const Dashboard: React.FC = () => {
       setProjects((prev) =>
         prev.map((p) => (p.id === flagId ? { ...p, status: 'Variance Approved' } : p))
       );
-      showToast(`✅ Official Decision: Approved variance adjustment for ${flagId}`, 'success');
+      showToast(`✅ Official Decision: Approved variance adjustment for ${flagId} (Session Sandbox Updated)`, 'success');
     } else {
       setProjects((prev) =>
         prev.map((p) => (p.id === flagId ? { ...p, status: 'Frozen for Audit', risk: 'High' } : p))
       );
-      showToast(`🛑 Official Decision: Frozen project ${flagId} for detailed forensic audit`, 'error');
+      showToast(`🛑 Official Decision: Frozen project ${flagId} for detailed forensic audit (Session Sandbox Updated)`, 'error');
     }
   };
 
