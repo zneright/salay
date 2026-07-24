@@ -5,6 +5,7 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginAsDemo: (role?: UserProfile['role']) => void;
   register: (fullName: string, email: string, role?: UserProfile['role'], organization?: string, password?: string) => Promise<void>;
   logout: () => Promise<void>;
   updateOnboarding: (role: UserProfile['role'], organization: string) => void;
@@ -35,6 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
+  };
+
+  const loginAsDemo = (role: UserProfile['role'] = 'Auditor') => {
+    const profile = authService.loginAsDemo(role);
+    setUser(profile);
   };
 
   const register = async (fullName: string, email: string, role?: UserProfile['role'], organization?: string, password?: string) => {
@@ -75,6 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         loading,
         login,
+        loginAsDemo,
         register,
         logout,
         updateOnboarding,

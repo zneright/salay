@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, 
   Layers, 
@@ -8,18 +8,27 @@ import {
   Sparkles, 
   CheckCircle2, 
   ShieldCheck, 
-  Terminal, 
   TrendingUp, 
   ChevronRight,
-  Activity
+  Activity,
+  Zap,
+  Play
 } from 'lucide-react';
 import { Navbar } from '../components/ui/Navbar';
 import { SnowflakeBadge } from '../components/ui/SnowflakeBadge';
+import { useAuth } from '../providers/AuthProvider';
 
 export const Landing: React.FC = () => {
+  const { loginAsDemo } = useAuth();
+  const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
   const [activePersona, setActivePersona] = useState<'citizen' | 'auditor' | 'official'>('citizen');
+
+  const handleLaunchDemo = (roleName: 'Auditor' | 'Government Official' | 'Citizen' = 'Auditor') => {
+    loginAsDemo(roleName);
+    navigate('/dashboard');
+  };
 
   const demoQueries = [
     {
@@ -127,20 +136,29 @@ export const Landing: React.FC = () => {
 
           {/* Call to Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <Link
-              to="/dashboard"
-              className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/20 transition-all active:scale-95 flex items-center justify-center space-x-2"
+            <button
+              onClick={() => handleLaunchDemo('Auditor')}
+              className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition-all active:scale-95 flex items-center justify-center space-x-2.5"
             >
-              <span>Explore Live Dashboard</span>
+              <Zap className="w-4 h-4 fill-white" />
+              <span>Instant Judge Demo (No Sign-Up)</span>
               <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              to="/demo"
-              className="w-full sm:w-auto px-7 py-3.5 border border-neutral-800 bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 font-semibold text-xs rounded-xl transition-all flex items-center justify-center space-x-2"
+            </button>
+            <button
+              onClick={() => handleLaunchDemo('Government Official')}
+              className="w-full sm:w-auto px-7 py-3.5 border border-neutral-800 bg-neutral-900/90 hover:bg-neutral-800 text-neutral-200 font-semibold text-xs rounded-xl transition-all flex items-center justify-center space-x-2"
             >
-              <Terminal className="w-4 h-4 text-sky-400" />
-              <span>Launch 3-Min Judge Demo</span>
-            </Link>
+              <Play className="w-3.5 h-3.5 text-sky-400 fill-sky-400" />
+              <span>Launch Official Persona</span>
+            </button>
+          </div>
+
+          {/* Ephemeral Sandbox Mode Notice */}
+          <div className="pt-2">
+            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-neutral-900/90 border border-neutral-800 rounded-xl text-[11px] font-mono text-neutral-400">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span><strong className="text-amber-300 font-bold">Ephemeral Demo Mode:</strong> Test PDF uploads, complaints & projects freely. All demo actions run in memory and reset on browser session end.</span>
+            </div>
           </div>
         </div>
 
@@ -308,14 +326,22 @@ export const Landing: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-neutral-800 flex justify-end">
-            <Link
-              to="/dashboard"
-              className="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center space-x-1"
+          <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
+            <span className="text-[10px] font-mono text-neutral-500">🔒 Ephemeral Demo Mode — No Signup Needed</span>
+            <button
+              onClick={() => {
+                const roleMap: Record<string, 'Citizen' | 'Auditor' | 'Government Official'> = {
+                  citizen: 'Citizen',
+                  auditor: 'Auditor',
+                  official: 'Government Official'
+                };
+                handleLaunchDemo(roleMap[activePersona]);
+              }}
+              className="text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl transition-all shadow-md flex items-center space-x-1.5 active:scale-95"
             >
-              <span>Explore Dashboard as {activePersona}</span>
+              <span>🚀 Launch Dashboard as {activePersona.toUpperCase()}</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </button>
           </div>
         </div>
       </section>

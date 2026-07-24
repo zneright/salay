@@ -5,7 +5,7 @@ import { ChevronRight, Eye, Terminal, Bug, X, Trash2, CheckCircle2, AlertTriangl
 import { subscribeApiLogs, clearApiDebugLogs, ApiDebugLog } from '../../lib/axios';
 
 export const JudgeModeBar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const [logs, setLogs] = useState<ApiDebugLog[]>([]);
   const [showDebugModal, setShowDebugModal] = useState(false);
@@ -23,15 +23,31 @@ export const JudgeModeBar: React.FC = () => {
   return (
     <>
       <div className="sticky top-0 z-50 w-full bg-neutral-900/95 text-white backdrop-blur border-b border-neutral-800 shadow-md transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4 text-xs">
+        <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between gap-4 text-xs">
           {/* Left: Live Session Branding */}
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold uppercase tracking-wider text-[10px]">
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold uppercase tracking-wider text-[10px]">
               <Eye className="w-3 h-3 text-sky-400" />
               Live Snowflake Terminal
             </span>
-            <span className="hidden md:inline-block text-neutral-400">
-              Authenticated User: <strong className="text-neutral-200">{user?.fullName || 'Registered User'} ({user?.role || 'Citizen'})</strong>
+            <span className="hidden md:flex items-center gap-2 text-neutral-400 text-[11px]">
+              <span>Active Persona:</span>
+              {/* Quick Role Switcher Dropdown */}
+              <select
+                value={user?.role || 'Auditor'}
+                onChange={(e) => {
+                  const role = e.target.value as any;
+                  loginAsDemo(role);
+                }}
+                className="bg-neutral-950 text-emerald-400 border border-neutral-700 px-2 py-0.5 rounded text-[11px] font-bold cursor-pointer focus:outline-none"
+              >
+                <option value="Auditor">🕵️ Auditor (Full Proof Access)</option>
+                <option value="Government Official">🏛️ Government Official</option>
+                <option value="Citizen">👤 Citizen Persona</option>
+              </select>
+              <span className="text-[10px] text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                🔒 Ephemeral Sandbox (Not Saved)
+              </span>
             </span>
           </div>
 

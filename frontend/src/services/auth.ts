@@ -9,10 +9,12 @@ export interface UserProfile {
   organization: string;
   createdAt: string;
   account_status?: string;
+  isDemo?: boolean;
 }
 
 export interface IAuthService {
   login(email: string, password: string): Promise<UserProfile>;
+  loginAsDemo(role?: UserProfile['role']): UserProfile;
   register(fullName: string, email: string, role?: string, organization?: string, password?: string): Promise<UserProfile>;
   logout(): Promise<void>;
   getCurrentUser(): UserProfile | null;
@@ -30,6 +32,22 @@ export class RealAuthService implements IAuthService {
     const user: UserProfile = res.data.user;
     this.saveUser(user);
     return user;
+  }
+
+  public loginAsDemo(role: UserProfile['role'] = 'Auditor'): UserProfile {
+    const demoUser: UserProfile = {
+      id: 'demo-judge-session',
+      fullName: `Judge (${role})`,
+      email: 'judge.panel@snowflake.hackathon',
+      role: role,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+      organization: 'Snowflake CoCo CLI Review Board',
+      createdAt: new Date().toISOString(),
+      account_status: 'Demo Ephemeral Sandbox',
+      isDemo: true
+    };
+    this.saveUser(demoUser);
+    return demoUser;
   }
 
   public async register(fullName: string, email: string, role?: string, organization?: string, password?: string): Promise<UserProfile> {
