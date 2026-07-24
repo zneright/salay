@@ -53,6 +53,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="analytics" element={<Analytics />} />
           <Route path="chat" element={<Chat />} />
           <Route path="feedback" element={<Feedback />} />
+          <Route path="coco-agent" element={<CoCoAgentWorkspace />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Route>

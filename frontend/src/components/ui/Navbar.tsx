@@ -36,6 +36,22 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  const handleNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    if (window.location.pathname !== '/') {
+      navigate('/#' + id);
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200 dark:border-neutral-900 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors text-neutral-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -47,12 +63,12 @@ export const Navbar: React.FC = () => {
 
         {/* Scroll link points */}
         <nav className="hidden md:flex items-center space-x-6 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-          <a href="#features" className="hover:text-neutral-900 dark:hover:text-white transition-colors">Features</a>
-          <a href="#technology" className="hover:text-neutral-900 dark:hover:text-white transition-colors">Technology</a>
+          <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">Features</a>
+          <a href="#technology" onClick={(e) => handleNavClick(e, 'technology')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">Technology</a>
           <Link to="/coco-agent" className="text-[#29b5e8] font-semibold hover:underline flex items-center gap-1">
             <span>CoCo Agent CLI</span>
           </Link>
-          <a href="#faq" className="hover:text-neutral-900 dark:hover:text-white transition-colors">FAQ</a>
+          <a href="#faq" onClick={(e) => handleNavClick(e, 'faq')} className="hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer">FAQ</a>
         </nav>
 
         {/* Action Triggers */}
