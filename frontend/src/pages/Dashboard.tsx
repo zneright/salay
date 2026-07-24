@@ -269,24 +269,39 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Banner Greeting */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm">
+      {/* Top Banner Greeting with Role-Based Visual Identity Theme */}
+      <div className={`flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl border backdrop-blur-xl shadow-md transition-all ${
+        role === 'Administrator' ? 'bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-neutral-900/60 border-amber-500/30' :
+        role === 'Auditor' ? 'bg-gradient-to-r from-rose-500/10 via-amber-500/5 to-neutral-900/60 border-rose-500/30' :
+        role === 'Government Official' ? 'bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-neutral-900/60 border-emerald-500/30' :
+        'bg-gradient-to-r from-sky-500/10 via-cyan-500/5 to-neutral-900/60 border-sky-500/30'
+      }`}>
         <div className="flex items-center gap-4">
-          <img
-            src={user?.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80'}
-            alt={user?.fullName || 'User'}
-            className="w-14 h-14 rounded-full object-cover ring-2 ring-sky-500/30"
-          />
+          <div className="relative">
+            <img
+              src={user?.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80'}
+              alt={user?.fullName || 'User'}
+              className="w-14 h-14 rounded-full object-cover ring-2 ring-sky-500/40 shadow-lg"
+            />
+            <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-neutral-900 flex items-center justify-center text-[9px] font-bold ${
+              role === 'Administrator' ? 'bg-amber-500 text-slate-950' :
+              role === 'Auditor' ? 'bg-rose-500 text-white' :
+              role === 'Government Official' ? 'bg-emerald-500 text-white' : 'bg-sky-500 text-white'
+            }`}>
+              {role === 'Administrator' ? '⚡' : role === 'Auditor' ? '🕵️' : role === 'Government Official' ? '🏛️' : '👤'}
+            </span>
+          </div>
+
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white">
                 {role === 'Administrator' && '⚡ System Governance & CoCo CLI Console'}
                 {role === 'Auditor' && '🕵️ Auditor General Intelligence Hub'}
                 {role === 'Government Official' && '🏛️ Department Expenditure & Allocation Control'}
                 {role === 'Citizen' && `Welcome back, ${user?.fullName || 'Citizen'}`}
               </h1>
             </div>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-snug">
               {role === 'Administrator' && 'Snowflake DB Schema Administration • CoCo Agent Automation • Live Logs'}
               {role === 'Auditor' && 'Snowflake Cortex Anomaly Detection • Line-Item PDF Proofs • Cross-Persona Alerts'}
               {role === 'Government Official' && 'Municipal Department Appropriations • Audit Review Queue • Approval Control'}
