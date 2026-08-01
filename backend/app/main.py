@@ -36,8 +36,8 @@ def create_app() -> FastAPI:
     # Global exception handler middleware
     app.add_middleware(GlobalExceptionMiddleware)
 
-    # Mount API routers under /api/v1, /v1, /api, and root for Vercel routing compatibility
-    for prefix in ["/api/v1", "/v1", "/api"]:
+    # Mount API routers under /api/v1, /v1, /api, and root ("") for Vercel routing compatibility
+    for prefix in ["/api/v1", "/v1", "/api", ""]:
         app.include_router(health_router, prefix=prefix, tags=["Diagnostics"])
         app.include_router(version_router, prefix=prefix, tags=["Diagnostics"])
         app.include_router(auth_router, prefix=prefix, tags=["Authentication"])
