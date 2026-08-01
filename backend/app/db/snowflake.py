@@ -8,7 +8,8 @@ try:
     import snowflake.connector
 
     HAS_SNOWFLAKE_CONNECTOR = True
-except ImportError:
+except Exception as exc:
+    logger.warning(f"snowflake.connector import failed: {exc}")
     HAS_SNOWFLAKE_CONNECTOR = False
 
 
