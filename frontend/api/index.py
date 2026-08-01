@@ -7,10 +7,9 @@ try:
     root_dir = os.path.dirname(frontend_dir)
     backend_dir = os.path.join(root_dir, "backend")
 
-    if backend_dir not in sys.path:
-        sys.path.insert(0, backend_dir)
-    if root_dir not in sys.path:
-        sys.path.insert(0, root_dir)
+    for path in [frontend_dir, backend_dir, root_dir]:
+        if path and os.path.exists(path) and path not in sys.path:
+            sys.path.insert(0, path)
 
     from app.main import app
 except Exception as init_err:
