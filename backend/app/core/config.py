@@ -12,16 +12,16 @@ class Settings(BaseSettings):
         "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
     )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    CORS_ORIGINS: List[str] = ["*"]
 
     # Snowflake Settings
     SNOWFLAKE_ACCOUNT: str = ""
     SNOWFLAKE_USER: str = ""
     SNOWFLAKE_PASSWORD: str = ""
-    SNOWFLAKE_WAREHOUSE: str = ""
+    SNOWFLAKE_WAREHOUSE: str = "COMPUTE_WH"
     SNOWFLAKE_DATABASE: str = "CIVIC_TRANSPARENCY_DB"
     SNOWFLAKE_SCHEMA: str = "PUBLIC"
-    SNOWFLAKE_ROLE: str = ""
+    SNOWFLAKE_ROLE: str = "ACCOUNTADMIN"
 
     # Cortex Model Settings
     CORTEX_LLM_MODEL: str = "llama3-70b"
@@ -36,11 +36,14 @@ class Settings(BaseSettings):
             try:
                 return json.loads(v)
             except Exception:
-                return ["http://localhost:5173"]
-        return v
+                return ["*"]
+        return v or ["*"]
 
     model_config = SettingsConfigDict(
-        env_file=(".env", "backend/.env"), env_file_encoding="utf-8", extra="ignore"
+        env_file=(".env", "backend/.env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_ignore_empty=True,
     )
 
 
