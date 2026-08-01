@@ -2,7 +2,7 @@ import datetime
 import random
 import logging
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel, EmailStr
 from app.db.snowflake import execute_snowflake_query, execute_snowflake_write
 
@@ -16,6 +16,13 @@ USER_DB: Dict[str, Dict[str, Any]] = {}
 def _save_user_to_snowflake(user: Dict[str, Any]) -> None:
     """Writes user entry into Snowflake USERS table."""
     try:
+        conn = get_snowflake_connection()
+        if not conn:
+            logger.warning("Could not persist user to Snowflake: Connection failed")
+            return
+
+        cursor = conn.cursor()
+
         # Create USERS table if it doesn't exist
         create_sql = (
             "CREATE TABLE IF NOT EXISTS USERS ("
@@ -29,11 +36,11 @@ def _save_user_to_snowflake(user: Dict[str, Any]) -> None:
             "CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()"
             ")"
         )
-        execute_snowflake_write(create_sql)
+        cursor.execute(create_sql)
 
         # Delete existing row if exists then insert
         del_sql = "DELETE FROM USERS WHERE LOWER(EMAIL) = %s"
-        execute_snowflake_write(del_sql, (user.get("email", "").lower().strip(),))
+        cursor.execute(del_sql, (user.get("email", "").lower().strip(),))
 
         insert_sql = (
             "INSERT INTO USERS (ID, FULL_NAME, EMAIL, PASSWORD, ROLE, ORGANIZATION, ACCOUNT_STATUS) "
@@ -48,7 +55,11 @@ def _save_user_to_snowflake(user: Dict[str, Any]) -> None:
             user.get("organization", "Metro City Municipality"),
             user.get("account_status", "Active"),
         )
-        execute_snowflake_write(insert_sql, params)
+        cursor.execute(insert_sql, params)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
         logger.info(f"User {user.get('email')} successfully saved to Snowflake USERS table.")
     except Exception as exc:
         logger.warning(f"Could not persist user to Snowflake USERS table: {exc}")
@@ -107,7 +118,7 @@ def register_get():
 
 
 @router.post("/auth/register")
-def register_user(req: RegisterRequest):
+def register_user(req: RegisterRequest, background_tasks: BackgroundTasks):
 
     email = req.email.lower().strip()
     role = req.role or "Citizen"
@@ -125,7 +136,7 @@ def register_user(req: RegisterRequest):
             user["organization"] = req.organization
         user["account_status"] = account_status
         USER_DB[email] = user
-        _save_user_to_snowflake(user)
+        background_tasks.add_task(_save_user_to_snowflake, user)
         return {
             "user": user,
             "token": f"bearer-{user['id']}",
@@ -145,7 +156,7 @@ def register_user(req: RegisterRequest):
         "createdAt": datetime.date.today().isoformat(),
     }
     USER_DB[email] = new_user
-    _save_user_to_snowflake(new_user)
+    background_tasks.add_task(_save_user_to_snowflake, new_user)
 
     return {
         "user": new_user,
@@ -236,7 +247,7 @@ def get_pending_users():
 
 
 @router.post("/auth/approve-user")
-def approve_or_reject_user(req: ApproveUserRequest):
+def approve_or_reject_user(req: ApproveUserRequest, background_tasks: BackgroundTasks):
     """Administrator endpoint to approve or reject Official & Auditor account requests."""
     email = req.email.lower().strip()
     user = _get_user_from_snowflake(email) or USER_DB.get(email)
@@ -254,7 +265,7 @@ def approve_or_reject_user(req: ApproveUserRequest):
         action_text = "Rejected"
 
     USER_DB[email] = user
-    _save_user_to_snowflake(user)
+    background_tasks.add_task(_save_user_to_snowflake, user)
 
     return {
         "message": f"User account {email} ({user['role']}) has been {action_text} in Snowflake DB.",
@@ -263,13 +274,13 @@ def approve_or_reject_user(req: ApproveUserRequest):
 
 
 @router.post("/auth/onboarding")
-def update_onboarding(req: OnboardingRequest):
+def update_onboarding(req: OnboardingRequest, background_tasks: BackgroundTasks):
     email = req.email.lower().strip()
     user = _get_user_from_snowflake(email) or USER_DB.get(email)
     if user:
         user["role"] = req.role
         user["organization"] = req.organization
         USER_DB[email] = user
-        _save_user_to_snowflake(user)
+        background_tasks.add_task(_save_user_to_snowflake, user)
         return {"user": user}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
