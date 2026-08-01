@@ -5,10 +5,17 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 import time
 
-# Ensure project root is in sys.path for scripts package import
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Ensure project root or backend root is in sys.path for scripts package import
+current_dir = os.path.dirname(os.path.abspath(__file__))
+app_dir = os.path.dirname(current_dir)
+backend_dir = os.path.dirname(app_dir)
+parent_dir = os.path.dirname(backend_dir)
+
+for path in [backend_dir, parent_dir]:
+    if path and os.path.exists(os.path.join(path, "scripts", "coco_cli.py")):
+        if path not in sys.path:
+            sys.path.insert(0, path)
+        break
 
 try:
     from scripts.coco_cli import (
