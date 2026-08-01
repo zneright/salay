@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Terminal, X, Play, Copy, Check, RefreshCw, Cpu, ShieldCheck, Zap } from 'lucide-react';
 import { showToast } from './Toast';
+import { httpClient } from '../../lib/axios';
 
 interface CoCoTerminalModalProps {
   isOpen: boolean;
@@ -81,22 +82,14 @@ export const CoCoTerminalModal: React.FC<CoCoTerminalModalProps> = ({
     const { commandName, prompt, dataset } = parseCommand(rawCmd);
 
     try {
-      // API backend execution call
-      const res = await fetch('http://localhost:8000/api/v1/cli/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          command: commandName,
-          prompt,
-          dataset,
-        }),
+      // API backend execution call via httpClient
+      const res = await httpClient.post('/cli/execute', {
+        command: commandName,
+        prompt,
+        dataset,
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = res.data;
       setLogs((prev) => [
         ...prev,
         {
