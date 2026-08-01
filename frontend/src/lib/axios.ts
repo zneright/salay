@@ -1,8 +1,16 @@
 import axios from 'axios';
 
-const rawEnvUrl = import.meta.env.VITE_API_BASE_URL || '';
-const isPlaceholderUrl = !rawEnvUrl || rawEnvUrl.includes('your-backend-api') || rawEnvUrl.includes('example.com');
-const apiBaseUrl = isPlaceholderUrl ? 'http://localhost:8000/api/v1' : rawEnvUrl;
+const rawEnvUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+const getEffectiveBaseUrl = (): string => {
+  if (import.meta.env.DEV) {
+    return rawEnvUrl || 'http://localhost:8000/api/v1';
+  }
+  if (!rawEnvUrl || rawEnvUrl.includes('localhost') || rawEnvUrl.includes('example.com')) {
+    return '/api/v1';
+  }
+  return rawEnvUrl.endsWith('/api/v1') ? rawEnvUrl : `${rawEnvUrl.replace(/\/+$/, '')}/api/v1`;
+};
+const apiBaseUrl = getEffectiveBaseUrl();
 
 export interface ApiDebugLog {
   id: string;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Database, ShieldCheck, Check, X, RefreshCw } from 'lucide-react';
 import { showToast } from '../components/ui/Toast';
+import { httpClient } from '../lib/axios';
 
 interface PendingUser {
   id: string;
@@ -20,11 +21,10 @@ export const Settings: React.FC = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/auth/pending-users');
-      if (res.ok) {
-        const data = await res.json();
-        setPendingUsers(data.pending_users || []);
-        setAllUsers(data.all_users || []);
+      const res = await httpClient.get('/auth/pending-users');
+      if (res.data) {
+        setPendingUsers(res.data.pending_users || []);
+        setAllUsers(res.data.all_users || []);
       }
     } catch {
       // Offline fallback
@@ -39,15 +39,10 @@ export const Settings: React.FC = () => {
 
   const handleAction = async (email: string, action: 'approve' | 'reject') => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/auth/approve-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, action }),
-      });
+      const res = await httpClient.post('/auth/approve-user', { email, action });
 
-      if (res.ok) {
-        const data = await res.json();
-        showToast(data.message, action === 'approve' ? 'success' : 'info');
+      if (res.data) {
+        showToast(res.data.message || 'Account status updated.', action === 'approve' ? 'success' : 'info');
         fetchUsers();
       } else {
         showToast('Failed to update account status.', 'error');
