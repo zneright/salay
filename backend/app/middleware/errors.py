@@ -17,13 +17,13 @@ class GlobalExceptionMiddleware(BaseHTTPMiddleware):
             # Log exact stack details locally
             logger.exception(f"Unhandled error processing request: {request.url.path}")
 
-            # Respond with standard security error payload with CORS headers
+            # Respond with standard security error payload with CORS headers & diagnostic detail
             response = JSONResponse(
                 status_code=500,
                 content={
                     "error_code": "INTERNAL_SERVER_ERROR",
-                    "message": "An unexpected server condition occurred.",
-                    "details": str(exc) if getattr(request.app, "debug", False) else None,
+                    "message": f"Server error on {request.url.path}: {str(exc)}",
+                    "details": str(exc),
                 },
             )
             response.headers["Access-Control-Allow-Origin"] = "*"
